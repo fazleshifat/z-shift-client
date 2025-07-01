@@ -1,10 +1,21 @@
 import React, { use } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
 import { AuthContext } from '../../contexts/AuthContext';
+import ProFastLogo from '../Logo/ProFastLogo';
 
 const Navbar = () => {
 
-    const { user } = use(AuthContext);
+    const { user, userLogOut } = use(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        userLogOut()
+            .then(res => {
+                console.log(res);
+                navigate('/logIn')
+            })
+            .catch(err => console.log(err))
+    }
 
     const links =
         <>
@@ -36,10 +47,8 @@ const Navbar = () => {
                         {links}
                     </ul>
                 </div>
-                <div className='flex items-end justify-center'>
-                    <img src="/assets/logo.png" className='w-10' alt="logo" />
-                    <p className='text-4xl font-bold -ml-3'>ProFast</p>
-                </div>
+                {/* logo */}
+                <ProFastLogo></ProFastLogo>
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
@@ -47,8 +56,16 @@ const Navbar = () => {
                 </ul>
             </div>
             <div className="navbar-end">
-                <Link className='btn' to='/login'>Login</Link>
-                <Link className='btn' to='/register'>Register</Link>
+                {user ? (
+                    <>
+                        <button onClick={handleLogout} className='btn btn-primary text-white'>Logout</button></>
+                ) :
+                    (
+                        <>
+                            <Link className='btn' to='/login'>Login</Link>
+                            <Link className='btn' to='/register'>Register</Link></>
+                    )
+                }
             </div>
         </div>
     );

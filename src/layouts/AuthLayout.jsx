@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router';
+import ProFastLogo from '../shared/Logo/ProFastLogo';
 
 
 const AuthLayout = () => {
@@ -7,10 +8,7 @@ const AuthLayout = () => {
     return (
         <>
             <div className="max-w-7xl mx-auto bg-base-200">
-                <div className='flex items-end'>
-                    <img src="/assets/logo.png" alt="logo" />
-                    <p className='text-4xl font-bold -ml-3'>ProFast</p>
-                </div>
+                <ProFastLogo></ProFastLogo>
 
                 <div className="hero-content flex-col lg:flex-row-reverse">
                     <div className='flex-1'>

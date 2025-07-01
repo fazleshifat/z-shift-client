@@ -16,7 +16,7 @@ const AuthProvider = ({ children }) => {
         return createUserWithEmailAndPassword(auth, email, password);
     }
 
-    const logInUser = (email, password) => {
+    const userLogin = (email, password) => {
         setLoading(true);
         return signInWithEmailAndPassword(auth, email, password)
     }
@@ -27,8 +27,9 @@ const AuthProvider = ({ children }) => {
         return signInWithPopup(auth, provider)
     }
 
-    const userSignOut = () => {
-        return signOut(auth)
+    const userLogOut = () => {
+        setLoading(true);
+        return signOut(auth);
     }
 
     // to observe the authentic user
@@ -56,9 +57,9 @@ const AuthProvider = ({ children }) => {
         loading,
         setLoading,
         createUser,
-        logInUser,
+        userLogin,
         signInWithGoogle,
-        userSignOut,
+        userLogOut,
         searchQuery,
         setSearchQuery
     }
