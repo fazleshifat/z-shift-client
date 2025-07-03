@@ -1,12 +1,36 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { useParams } from 'react-router';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import Spinner from '../../../components/Spinner';
 
 const PaymentForm = () => {
 
     const stripe = useStripe();
     const elements = useElements();
+    const { parcelId } = useParams();
+    const axiosSecure = useAxiosSecure();
 
     const [errorMessage, setErrorMessage] = useState('');
+
+    const { isPending, data: parcelInfo = {}, isError, error } = useQuery({
+        queryKey: ['parcels', parcelId],
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/parcels/${parcelId}`);
+            return res.data;
+        }
+    })
+
+
+    if (isPending) {
+        return <Spinner></Spinner>
+    }
+
+    console.log(parcelInfo)
+    const amount = parcelInfo.deliveryCost;
+    const amountInCents = amount * 100;
+    console.log(amountInCents);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -33,6 +57,32 @@ const PaymentForm = () => {
             setErrorMessage('');
             console.log('payment method', paymentMethod);
         }
+
+
+        // step-2: create payment intent
+        const res = await axiosSecure.post('/create-payment-intent', {
+            amountInCents,
+            parcelId
+        })
+
+        const clientSecret = res.data.clientSecret;
+
+        const result = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: elements.getElement(CardElement),
+                billing_details: 'Felix Tavio',
+            },
+        });
+
+        if (result.error) {
+            console.log(result.error.message);
+        }
+        else {
+            if (result.paymentIntent.status === 'succeeded') {
+                console.log('Payment Succeed');
+                console.log(result);
+            }
+        }
     }
 
     return (
@@ -42,7 +92,7 @@ const PaymentForm = () => {
                 <button type='submit'
                     className='btn btn-primary w-full'
                     disabled={!stripe}>
-                    PAY for pickup parcel
+                    PAY ${amount}
                 </button>
                 {
                     errorMessage && <p className='text-red-500'>{errorMessage}</p>
