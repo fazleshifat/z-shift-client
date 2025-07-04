@@ -62,8 +62,8 @@ const DashboardLayout = () => {
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to='/dashboard/track-package' className="flex items-center gap-2">
-                                <MdTrackChanges className="text-lg" /> Track Package
+                            <NavLink to='/dashboard/track-parcel' className="flex items-center gap-2">
+                                <MdTrackChanges className="text-lg" /> Track Parcel
                             </NavLink>
                         </li>
                         <li>
