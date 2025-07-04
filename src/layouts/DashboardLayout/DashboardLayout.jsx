@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../../shared/Logo/ProFastLogo';
+import { MdHome, MdDashboard, MdOutlinePayment, MdTrackChanges, MdPerson } from 'react-icons/md';
+import { FaBoxOpen } from 'react-icons/fa';
 
 const DashboardLayout = () => {
     return (
@@ -44,8 +46,31 @@ const DashboardLayout = () => {
                     <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
                         {/* Sidebar content here */}
                         <ProFastLogo></ProFastLogo>
-                        <li><NavLink to='/'>Home</NavLink></li>
-                        <li><NavLink to='/dashboard/myParcels'>My Parcels</NavLink></li>
+                        <li>
+                            <NavLink to='/' className="flex items-center gap-2">
+                                <MdHome className="text-lg" /> Home
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to='/dashboard/myParcels' className="flex items-center gap-2">
+                                <FaBoxOpen className="text-lg" /> My Parcels
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to='/dashboard/payment-history' className="flex items-center gap-2">
+                                <MdOutlinePayment className="text-lg" /> Payment History
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to='/dashboard/track-package' className="flex items-center gap-2">
+                                <MdTrackChanges className="text-lg" /> Track Package
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to='/dashboard/update-profile' className="flex items-center gap-2">
+                                <MdPerson className="text-lg" /> Update Profile
+                            </NavLink>
+                        </li>
                     </ul>
                 </div>
             </div>
