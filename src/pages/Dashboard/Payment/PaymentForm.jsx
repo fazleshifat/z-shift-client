@@ -1,10 +1,11 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { useQuery } from '@tanstack/react-query';
 import React, { use, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import Spinner from '../../../components/Spinner';
 import { AuthContext } from '../../../contexts/AuthContext';
+import Swal from 'sweetalert2';
 
 const PaymentForm = () => {
 
@@ -13,6 +14,7 @@ const PaymentForm = () => {
     const { parcelId } = useParams();
     const axiosSecure = useAxiosSecure();
     const { user } = use(AuthContext);
+    const navigate = useNavigate();
 
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -96,7 +98,18 @@ const PaymentForm = () => {
                     paymentMethod: result.paymentIntent.payment_method_types,
                 }
 
-                await axiosSecure.post('/payments/confirm', paymentData);
+                const paymentRes = await axiosSecure.post('/payments/confirm', paymentData);
+                if (paymentRes.status === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful!',
+                        html: `Transaction ID: <strong>${paymentData.transactionId}</strong>`,
+                        confirmButtonText: 'Go to My Parcels',
+                        confirmButtonColor: '#16a34a',
+                    }).then(() => {
+                        navigate('/dashboard/myParcels');
+                    });
+                }
             }
         }
     }
