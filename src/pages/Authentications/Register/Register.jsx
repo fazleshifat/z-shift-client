@@ -1,27 +1,38 @@
-import React, { use } from 'react';
+import React, { use, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { Link } from 'react-router';
+import axios from 'axios';
 
 const Register = () => {
 
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const { createUser } = use(AuthContext);
+    const [profilePicture, setProfilePicture] = useState('');
 
     const onSubmit = data => {
         console.log(data);
         createUser(data.email, data.password)
-            .then(result => console.log(result.user))
+            .then(result => {
+                console.log(result.user);
+
+                // update user profile in Firebase
+                
+
+            })
             .catch(err => console.log(err))
 
     }
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const image = e.target.files[0];
         console.log(image)
 
         const formData = new FormData();
-        formData.append('image', image)
+        formData.append('image', image);
+
+        const res = await axios.post(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_upload_key}`, formData);
+        setProfilePicture(res.data.data.url);
     }
 
     return (
