@@ -29,6 +29,7 @@ const Navbar = () => {
                 </>
             }
 
+            <li><NavLink to='/beARider'>Be A Rider</NavLink></li>
             <li><NavLink to='/about-us'>About Us</NavLink></li>
             <li><NavLink to='/contact'>Contact</NavLink></li>
         </>
@@ -58,7 +59,12 @@ const Navbar = () => {
             <div className="navbar-end">
                 {user ? (
                     <>
-                        <button onClick={handleLogout} className='btn btn-primary text-white'>Logout</button></>
+                        <div className='flex items-center gap-3'>
+                            <img src={user?.photoURL} className='w-12 h-12 rounded-full' alt="photo" />
+                            <p className='text-white bg-gray-500 py-2 px-4 rounded-3xl'>{user.displayName}</p>
+                            <button onClick={handleLogout} className='btn btn-primary text-white'>Logout</button>
+                        </div>
+                    </>
                 ) :
                     (
                         <>

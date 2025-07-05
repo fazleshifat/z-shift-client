@@ -4,6 +4,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import { Link } from 'react-router';
 import axios from 'axios';
 import useAxios from '../../../hooks/useAxios';
+import SocialLogin from '../SocialLogin/SocialLogin';
 
 const Register = () => {
 
@@ -50,7 +51,7 @@ const Register = () => {
             .catch(err => console.log(err))
 
     }
-    
+
 
     // function to turn Image file into url at imgBB hosting
     const handleImageUpload = async (e) => {
@@ -65,79 +66,113 @@ const Register = () => {
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <fieldset className="fieldset w-md mx-auto">
+            <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
+                <div className="w-full max-w-md bg-base-100 shadow-xl p-8 rounded-3xl space-y-6">
+                    <h2 className="text-2xl font-semibold text-center">Create an Account</h2>
 
-                    {/* name */}
-                    <label className="label">Name</label>
-                    <input
-                        type="text"
-                        {...register('name', { required: true })}
-                        className="input w-full"
-                        placeholder="Full Name"
-                    />
-                    {errors.name?.type === 'required' && (
-                        <p className="text-red-500">Name is required</p>
-                    )}
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        {/* Name */}
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Name</span>
+                            </label>
+                            <input
+                                type="text"
+                                {...register('name', { required: true })}
+                                placeholder="Full Name"
+                                className="input input-bordered w-full"
+                            />
+                            {errors.name && <p className="text-red-500 text-sm">Name is required</p>}
+                        </div>
 
-                    {/* profile image */}
-                    <label className="label">Profile Image</label>
-                    <input
-                        onChange={handleImageUpload}
-                        type="file"
-                        className="input w-full"
-                        placeholder="upload profile image"
-                    />
+                        {/* Profile Image */}
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Profile Image</span>
+                            </label>
+                            <input
+                                type="file"
+                                onChange={handleImageUpload}
+                                className="file-input file-input-bordered w-full"
+                            />
+                        </div>
 
+                        {/* Email */}
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Email</span>
+                            </label>
+                            <input
+                                type="email"
+                                {...register('email', { required: true })}
+                                placeholder="Email"
+                                className="input input-bordered w-full"
+                            />
+                            {errors.email && <p className="text-red-500 text-sm">Email is required</p>}
+                        </div>
 
-                    {/* email */}
-                    <label className="label">Email</label>
-                    <input
-                        type="email"
-                        {...register('email', { required: true })}
-                        className="input w-full"
-                        placeholder="Email"
-                    />
-                    {errors.email?.type === 'required' && (
-                        <p className="text-red-500">Email is required</p>
-                    )}
+                        {/* Password */}
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Password</span>
+                            </label>
+                            <input
+                                type="password"
+                                {...register('password', {
+                                    required: true,
+                                    minLength: 6,
+                                })}
+                                placeholder="Password"
+                                className="input input-bordered w-full"
+                            />
+                            {errors.password?.type === 'required' && (
+                                <p className="text-red-500 text-sm">Password is required</p>
+                            )}
+                            {errors.password?.type === 'minLength' && (
+                                <p className="text-red-500 text-sm">Password must be at least 6 characters</p>
+                            )}
+                        </div>
 
-                    {/* password */}
-                    <label className="label">Password</label>
-                    <input
-                        type="password"
-                        {...register('password', {
-                            required: true,
-                            minLength: 6,
-                        })}
-                        className="input w-full"
-                        placeholder="Password"
-                    />
-                    {errors.password?.type === 'required' && (
-                        <p className="text-red-500">Password is required</p>
-                    )}
-                    {errors.password?.type === 'minLength' && (
-                        <p className="text-red-500">Password must be 6 characters or longer</p>
-                    )}
+                        {/* Confirm Password */}
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Confirm Password</span>
+                            </label>
+                            <input
+                                type="password"
+                                {...register('confirmPassword', {
+                                    required: true,
+                                    validate: (value) =>
+                                        value === watch('password') || 'Passwords do not match',
+                                })}
+                                placeholder="Confirm Password"
+                                className="input input-bordered w-full"
+                            />
+                            {errors.confirmPassword && (
+                                <p className="text-red-500 text-sm">
+                                    {errors.confirmPassword.message}
+                                </p>
+                            )}
+                        </div>
 
-                    <label className="label">Confirm Password</label>
-                    <input
-                        type="password"
-                        {...register('confirmPassword', {
-                            required: true,
-                            validate: (value) => value === watch('password') || "Passwords do not match",
-                        })}
-                        className="input w-full"
-                        placeholder="Confirm Password"
-                    />
-                    {errors.confirmPassword && (
-                        <p className="text-red-500">{errors.confirmPassword.message || 'Confirm password is required'}</p>
-                    )}
-                    <p>Already have an account?<Link to='/login'><span className='text-primary underline pl-1'>Login</span></Link></p>
-                    <button className="btn btn-neutral mt-4">Register</button>
-                </fieldset>
-            </form>
+                        {/* Register Button */}
+                        <button type="submit" className="btn btn-neutral w-full mt-2">
+                            Register
+                        </button>
 
+                        {/* Login Redirect */}
+                        <p className="text-sm text-center mt-2">
+                            Already have an account?
+                            <Link to="/login" className="text-primary pl-1 underline">
+                                Login
+                            </Link>
+                        </p>
+                    </form>
+
+                    {/* Social Login */}
+                    <SocialLogin />
+                </div>
+            </div>
         </>
     );
 };
