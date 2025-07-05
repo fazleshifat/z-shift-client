@@ -33,15 +33,18 @@ const BeARider = () => {
     const selectedRegion = watch('region');
     const districts = selectedRegion ? getDistricts(selectedRegion) : [];
 
+
     const onSubmit = async data => {
-        const formData = {
+        const riderData = {
             ...data,
             status: 'pending', // default status
             createdAt: new Date().toISOString(),
         };
 
+        console.log('Rider application', riderData)
+
         try {
-            const res = await axiosSecure.post('/riders', formData);
+            const res = await axiosSecure.post('/riders', riderData);
             if (res.data.insertedId) {
                 Swal.fire({
                     icon: 'success',

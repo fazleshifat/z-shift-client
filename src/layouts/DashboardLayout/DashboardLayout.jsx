@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../../shared/Logo/ProFastLogo';
-import { MdHome, MdDashboard, MdOutlinePayment, MdTrackChanges, MdPerson } from 'react-icons/md';
-import { FaBoxOpen } from 'react-icons/fa';
+import { MdHome, MdOutlinePayment, MdTrackChanges, MdPerson, MdPending } from 'react-icons/md';
+import { FaBoxOpen, FaMotorcycle } from 'react-icons/fa';
 
 const DashboardLayout = () => {
     return (
@@ -69,6 +69,18 @@ const DashboardLayout = () => {
                         <li>
                             <NavLink to='/dashboard/update-profile' className="flex items-center gap-2">
                                 <MdPerson className="text-lg" /> Update Profile
+                            </NavLink>
+                        </li>
+
+                        {/* riders links */}
+                        <li>
+                            <NavLink to='/dashboard/active-riders' className="flex items-center gap-2">
+                                <FaMotorcycle className="text-lg" /> Active Riders
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to='/dashboard/pending-riders' className="flex items-center gap-2">
+                                <MdPending className="text-lg" /> Pending Riders
                             </NavLink>
                         </li>
                     </ul>
