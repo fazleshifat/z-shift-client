@@ -1,9 +1,140 @@
-import React from 'react';
+import React, { useState } from 'react';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Swal from 'sweetalert2';
+import Spinner from '../../../components/Spinner';
 
 const PendingRiders = () => {
+    const axiosSecure = useAxiosSecure();
+    const queryClient = useQueryClient();
+    const [selectedRider, setSelectedRider] = useState(null);
+
+    const { isLoading, data: riders = [] } = useQuery({
+        queryKey: ['pendingRiders'],
+        queryFn: async () => {
+            const res = await axiosSecure.get('/riders/pending');
+            return res.data;
+        },
+    });
+
+    const handleApprove = async (id) => {
+        try {
+            const res = await axiosSecure.patch(`/riders/${id}/status`, { status: 'approved' });
+            Swal.fire('Approved!', 'Rider has been approved.', 'success');
+            queryClient.invalidateQueries(['pendingRiders']);
+        } catch (error) {
+            Swal.fire('Error!', 'Approval failed.', 'error');
+            console.error(error);
+        }
+    };
+
+    const handleReject = (id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Rejecting will delete this rider application permanently!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, reject it!',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await axiosSecure.delete(`/riders/${id}`);
+                    Swal.fire('Rejected!', 'Rider has been deleted.', 'info');
+                    queryClient.invalidateQueries(['pendingRiders']);
+                } catch (error) {
+                    Swal.fire('Error!', 'Rejection failed.', 'error');
+                    console.error(error);
+                }
+            }
+        });
+    };
+
+    if (isLoading) return <Spinner />;
+
     return (
-        <div>
-            
+        <div className="p-4">
+            <h2 className="text-2xl font-bold mb-4">Pending Rider Applications</h2>
+
+            {riders.length === 0 ? (
+                <p className="text-center py-10 text-gray-500">No pending riders.</p>
+            ) : (
+                <div className="overflow-x-auto rounded-xl shadow">
+                    <table className="table table-zebra w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Region</th>
+                                <th>District</th>
+                                <th>Phone</th>
+                                <th>Bike</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {riders.map((rider, index) => (
+                                <tr key={rider._id}>
+                                    <td>{index + 1}</td>
+                                    <td>{rider.name}</td>
+                                    <td>{rider.region}</td>
+                                    <td>{rider.district}</td>
+                                    <td>{rider.phone}</td>
+                                    <td>{rider.bikeBrand}</td>
+                                    <td className="flex gap-2 flex-wrap">
+                                        <button
+                                            className="btn btn-xs btn-info"
+                                            onClick={() => setSelectedRider(rider)}
+                                        >
+                                            View
+                                        </button>
+                                        <button
+                                            className="btn btn-xs btn-success"
+                                            onClick={() => handleApprove(rider._id)}
+                                        >
+                                            Approve
+                                        </button>
+                                        <button
+                                            className="btn btn-xs btn-error"
+                                            onClick={() => handleReject(rider._id)}
+                                        >
+                                            Reject
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {selectedRider && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-xl w-[90%] max-w-xl shadow-lg relative">
+                        <button
+                            className="absolute top-2 right-2 text-xl text-red-500"
+                            onClick={() => setSelectedRider(null)}
+                        >
+                            ✕
+                        </button>
+                        <h3 className="text-xl font-bold mb-4">Rider Details</h3>
+                        <div className="space-y-2 text-sm">
+                            <p><strong>Status:</strong> {selectedRider.status}</p>
+                            <p><strong>Name:</strong> {selectedRider.name}</p>
+                            <p><strong>Email:</strong> {selectedRider.email}</p>
+                            <p><strong>Age:</strong> {selectedRider.age}</p>
+                            <p><strong>Region:</strong> {selectedRider.region}</p>
+                            <p><strong>District:</strong> {selectedRider.district}</p>
+                            <p><strong>Phone:</strong> {selectedRider.phone}</p>
+                            <p><strong>NID:</strong> {selectedRider.nid}</p>
+                            <p><strong>Bike Brand:</strong> {selectedRider.bikeBrand}</p>
+                            <p><strong>Bike Reg No:</strong> {selectedRider.bikeRegNo}</p>
+                            <p><strong>License:</strong> {selectedRider.licenseNo || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
