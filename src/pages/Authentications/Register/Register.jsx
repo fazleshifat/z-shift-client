@@ -7,7 +7,7 @@ import axios from 'axios';
 const Register = () => {
 
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
-    const { createUser } = use(AuthContext);
+    const { createUser, updateUserProfile } = use(AuthContext);
     const [profilePicture, setProfilePicture] = useState('');
 
     const onSubmit = data => {
@@ -16,8 +16,30 @@ const Register = () => {
             .then(result => {
                 console.log(result.user);
 
+                // update user info in Database
+                const userInfo = {
+                    email: data.email,
+                    role: 'user', // default role
+                    created_at: new Date().toISOString(),
+                }
+
+
+
+
                 // update user profile in Firebase
-                
+                const userProfile = {
+                    displayName: data.name,
+                    photoURL: profilePicture
+                }
+                // sending userProfile data to the firebase update auth
+                updateUserProfile(userProfile)
+                    .then(() => {
+                        console.log('profile name and picture updated')
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+
 
             })
             .catch(err => console.log(err))
@@ -26,7 +48,6 @@ const Register = () => {
 
     const handleImageUpload = async (e) => {
         const image = e.target.files[0];
-        console.log(image)
 
         const formData = new FormData();
         formData.append('image', image);
