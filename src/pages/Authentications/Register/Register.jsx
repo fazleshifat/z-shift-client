@@ -3,17 +3,19 @@ import { useForm } from 'react-hook-form';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { Link } from 'react-router';
 import axios from 'axios';
+import useAxios from '../../../hooks/useAxios';
 
 const Register = () => {
 
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const { createUser, updateUserProfile } = use(AuthContext);
     const [profilePicture, setProfilePicture] = useState('');
+    const axiosInstance = useAxios();
 
     const onSubmit = data => {
         console.log(data);
         createUser(data.email, data.password)
-            .then(result => {
+            .then(async (result) => {
                 console.log(result.user);
 
                 // update user info in Database
@@ -21,8 +23,11 @@ const Register = () => {
                     email: data.email,
                     role: 'user', // default role
                     created_at: new Date().toISOString(),
+                    last_login: new Date().toISOString(),
                 }
 
+                const userRes = await axiosInstance.post('/users', userInfo);
+                console.log(userRes.data);
 
 
 
