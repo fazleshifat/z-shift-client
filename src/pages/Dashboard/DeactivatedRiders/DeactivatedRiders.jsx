@@ -4,61 +4,38 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import Spinner from '../../../components/Spinner';
 
-const PendingRiders = () => {
+const DeactivatedRiders = () => {
     const axiosSecure = useAxiosSecure();
     const queryClient = useQueryClient();
     const [selectedRider, setSelectedRider] = useState(null);
 
     const { isLoading, data: riders = [] } = useQuery({
-        queryKey: ['pendingRiders'],
+        queryKey: ['deactivatedRiders'],
         queryFn: async () => {
-            const res = await axiosSecure.get('/riders/pending');
+            const res = await axiosSecure.get('/riders/deactivated');
             return res.data;
         },
     });
 
-    const handleApprove = async (id) => {
+    const handleActivate = async (id) => {
         try {
             await axiosSecure.patch(`/riders/${id}/status`, { status: 'active' });
-            Swal.fire('Approved!', 'Rider has been approved.', 'success');
-            queryClient.invalidateQueries(['pendingRiders']);
+            Swal.fire('Activated!', 'Rider has been activated.', 'success');
+            queryClient.invalidateQueries(['deactivatedRiders']);
         } catch (error) {
-            Swal.fire('Error!', 'Approval failed.', 'error');
+            Swal.fire('Error!', 'Activation failed.', 'error');
             console.error(error);
         }
-    };
-
-    const handleReject = (id) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This will mark the rider as rejected, but data will remain in the system.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, reject!',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await axiosSecure.patch(`/riders/${id}/status`, { status: 'rejected' });
-                    Swal.fire('Rejected!', 'Rider has been marked as rejected.', 'info');
-                    queryClient.invalidateQueries(['pendingRiders']);
-                } catch (error) {
-                    Swal.fire('Error!', 'Rejection failed.', 'error');
-                    console.error(error);
-                }
-            }
-        });
     };
 
     if (isLoading) return <Spinner />;
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">Pending Rider Applications</h2>
+            <h2 className="text-2xl font-bold mb-4">Deactivated Riders</h2>
 
             {riders.length === 0 ? (
-                <p className="text-center py-10 text-gray-500">No pending riders.</p>
+                <p className="text-center py-10 text-gray-500">No deactivated riders.</p>
             ) : (
                 <div className="overflow-x-auto rounded-xl shadow">
                     <table className="table table-zebra w-full text-sm">
@@ -84,28 +61,16 @@ const PendingRiders = () => {
                                     <td>{rider.phone}</td>
                                     <td>{rider.bikeBrand}</td>
                                     <td>
-                                        <span className='bg-gray-600 px-4 py-2 rounded-3xl text-blue-300 uppercase'>
+                                        <span className='bg-gray-600 px-4 py-2 rounded-3xl'>
                                             {rider.status}
                                         </span>
                                     </td>
-                                    <td className="flex gap-2 flex-wrap">
-                                        <button
-                                            className="btn btn-xs btn-info"
-                                            onClick={() => setSelectedRider(rider)}
-                                        >
-                                            View
-                                        </button>
+                                    <td>
                                         <button
                                             className="btn btn-xs btn-success"
-                                            onClick={() => handleApprove(rider._id)}
+                                            onClick={() => handleActivate(rider._id)}
                                         >
-                                            Approve
-                                        </button>
-                                        <button
-                                            className="btn btn-xs btn-error"
-                                            onClick={() => handleReject(rider._id)}
-                                        >
-                                            Reject
+                                            Activate
                                         </button>
                                     </td>
                                 </tr>
@@ -126,17 +91,9 @@ const PendingRiders = () => {
                         </button>
                         <h3 className="text-xl font-bold mb-4">Rider Details</h3>
                         <div className="space-y-2 text-sm">
-                            <p><strong>Status:</strong> {selectedRider.status}</p>
+                            {/* Add more details as needed */}
                             <p><strong>Name:</strong> {selectedRider.name}</p>
-                            <p><strong>Email:</strong> {selectedRider.email}</p>
-                            <p><strong>Age:</strong> {selectedRider.age}</p>
-                            <p><strong>Region:</strong> {selectedRider.region}</p>
-                            <p><strong>District:</strong> {selectedRider.district}</p>
-                            <p><strong>Phone:</strong> {selectedRider.phone}</p>
-                            <p><strong>NID:</strong> {selectedRider.nid}</p>
-                            <p><strong>Bike Brand:</strong> {selectedRider.bikeBrand}</p>
-                            <p><strong>Bike Reg No:</strong> {selectedRider.bikeRegNo}</p>
-                            <p><strong>License:</strong> {selectedRider.licenseNo || 'N/A'}</p>
+                            <p><strong>Status:</strong> {selectedRider.status}</p>
                         </div>
                     </div>
                 </div>
@@ -145,4 +102,4 @@ const PendingRiders = () => {
     );
 };
 
-export default PendingRiders;
+export default DeactivatedRiders;

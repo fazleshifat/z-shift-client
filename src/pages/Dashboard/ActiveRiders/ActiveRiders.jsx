@@ -61,6 +61,7 @@ const ActiveRiders = () => {
                                 <th>Region</th>
                                 <th>District</th>
                                 <th>Bike</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -73,6 +74,11 @@ const ActiveRiders = () => {
                                     <td>{rider.region}</td>
                                     <td>{rider.district}</td>
                                     <td>{rider.bikeBrand}</td>
+                                    <td>
+                                        <span className='bg-gray-600 px-4 py-2 rounded-3xl text-yellow-300 uppercase'>
+                                            {rider.status}
+                                        </span>
+                                    </td>
                                     <td>
                                         <button
                                             className="btn btn-xs btn-error"

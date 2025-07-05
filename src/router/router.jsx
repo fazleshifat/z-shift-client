@@ -18,6 +18,8 @@ import TrackParcel from "../pages/Dashboard/TrackParcel/TrackParcel";
 import BeARider from "../pages/Dashboard/BeARider/BeARider";
 import PendingRiders from "../pages/Dashboard/PendingRiders/PendingRiders";
 import ActiveRiders from "../pages/Dashboard/ActiveRiders/ActiveRiders";
+import DeactivatedRiders from "../pages/Dashboard/DeactivatedRiders/DeactivatedRiders";
+import RejectedRiders from "../pages/Dashboard/RejectedRiders/RejectedRiders";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -92,10 +94,15 @@ export const router = createBrowserRouter([
                 path: 'active-riders',
                 Component: ActiveRiders
             },
-            // {
-            //     path:'deactivated-riders',
-            //     Component:
-            // }
+            {
+                path: 'rejected-riders',
+                Component: RejectedRiders
+            }
+            ,
+            {
+                path: 'deactivated-riders',
+                Component: DeactivatedRiders
+            }
         ]
     }
 ]);
