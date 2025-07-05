@@ -19,7 +19,7 @@ const PendingRiders = () => {
 
     const handleApprove = async (id) => {
         try {
-            const res = await axiosSecure.patch(`/riders/${id}/status`, { status: 'approved' });
+            await axiosSecure.patch(`/riders/${id}/status`, { status: 'active' });
             Swal.fire('Approved!', 'Rider has been approved.', 'success');
             queryClient.invalidateQueries(['pendingRiders']);
         } catch (error) {
@@ -31,17 +31,17 @@ const PendingRiders = () => {
     const handleReject = (id) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: "Rejecting will delete this rider application permanently!",
+            text: "This will mark the rider as rejected, but data will remain in the system.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, reject it!',
+            confirmButtonText: 'Yes, reject!',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await axiosSecure.delete(`/riders/${id}`);
-                    Swal.fire('Rejected!', 'Rider has been deleted.', 'info');
+                    await axiosSecure.patch(`/riders/${id}/status`, { status: 'rejected' });
+                    Swal.fire('Rejected!', 'Rider has been marked as rejected.', 'info');
                     queryClient.invalidateQueries(['pendingRiders']);
                 } catch (error) {
                     Swal.fire('Error!', 'Rejection failed.', 'error');
