@@ -16,10 +16,20 @@ const Register = () => {
 
     }
 
+    const handleImageUpload = (e) => {
+        const image = e.target.files[0];
+        console.log(image)
+
+        const formData = new FormData();
+        formData.append('image', image)
+    }
+
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <fieldset className="fieldset w-md mx-auto">
+
+                    {/* name */}
                     <label className="label">Name</label>
                     <input
                         type="text"
@@ -31,6 +41,17 @@ const Register = () => {
                         <p className="text-red-500">Name is required</p>
                     )}
 
+                    {/* profile image */}
+                    <label className="label">Profile Image</label>
+                    <input
+                        onChange={handleImageUpload}
+                        type="file"
+                        className="input w-full"
+                        placeholder="upload profile image"
+                    />
+
+
+                    {/* email */}
                     <label className="label">Email</label>
                     <input
                         type="email"
@@ -42,6 +63,7 @@ const Register = () => {
                         <p className="text-red-500">Email is required</p>
                     )}
 
+                    {/* password */}
                     <label className="label">Password</label>
                     <input
                         type="password"
