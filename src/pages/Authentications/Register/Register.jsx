@@ -50,7 +50,9 @@ const Register = () => {
             .catch(err => console.log(err))
 
     }
+    
 
+    // function to turn Image file into url at imgBB hosting
     const handleImageUpload = async (e) => {
         const image = e.target.files[0];
 
