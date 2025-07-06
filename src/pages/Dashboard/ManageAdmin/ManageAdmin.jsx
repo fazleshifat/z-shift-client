@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { FaUserShield, FaUserAltSlash, FaSearch } from 'react-icons/fa';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import Spinner from '../../../components/Spinner';
 
 const ManageAdmin = () => {
     const axiosSecure = useAxiosSecure();
@@ -31,7 +32,23 @@ const ManageAdmin = () => {
         }
     }, [search, refetch]);
 
+    // updating the Role between (Admin and User)
     const updateRole = async (id, newRole) => {
+        const action = newRole === 'admin' ? 'Make this user an Admin?' : 'Remove Admin role from this user?';
+
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: action,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, proceed',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) {
+            return; // User cancelled, do nothing
+        }
+
         try {
             const res = await axiosSecure.patch(`/users/${id}/role`, { role: newRole });
             Swal.fire('Success', `Role updated to ${newRole}`, 'success');
@@ -45,7 +62,7 @@ const ManageAdmin = () => {
         <div className="p-4">
             <h2 className="text-xl font-bold mb-4">Admin Manager</h2>
 
-            <div className="mb-4 w-md flex items-center gap-2">
+            <div className="mb-4 w-md mx-auto flex items-center gap-2">
                 <FaSearch className="text-xl" />
                 <input
                     type="text"
@@ -56,7 +73,7 @@ const ManageAdmin = () => {
                 />
             </div>
 
-            {isFetching && <p>Loading...</p>}
+            {isFetching && <Spinner></Spinner>}
 
             {users.length > 0 && (
                 <div className="overflow-x-auto">
