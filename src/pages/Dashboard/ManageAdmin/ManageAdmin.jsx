@@ -92,8 +92,13 @@ const ManageAdmin = () => {
                                 <tr key={user._id}>
                                     <td>{index + 1}</td>
                                     <td>{user.email}</td>
-                                    <td>{user.created_at || 'N/A'}</td>
-                                    <td>{user.role || 'user'}</td>
+                                    <td>{new Date(user.created_at).toDateString() || 'N/A'}</td>
+                                    <td>
+                                        <span
+                                            className='uppercase bg-gray-600 py-1 px-3 text-white rounded-full'>
+                                            {user.role || 'user'}
+                                        </span>
+                                    </td>
                                     <td>
                                         {user.role !== 'admin' ? (
                                             <button
