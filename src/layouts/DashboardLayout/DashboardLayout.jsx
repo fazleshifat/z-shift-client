@@ -3,8 +3,13 @@ import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../../shared/Logo/ProFastLogo';
 import { MdHome, MdOutlinePayment, MdTrackChanges, MdPerson, MdPending, MdOutlineCancel, MdBlock } from 'react-icons/md';
 import { FaBoxOpen, FaMotorcycle, FaUserShield } from 'react-icons/fa';
+import useUserRole from '../../hooks/useUserrRole';
 
 const DashboardLayout = () => {
+
+    const { role, isLoading } = useUserRole();
+    console.log(role)
+
     return (
         <>
             <div className="drawer lg:drawer-open">
@@ -37,7 +42,6 @@ const DashboardLayout = () => {
 
                     <div>
                         <Outlet></Outlet>
-                        hi
                     </div>
 
                 </div>
@@ -73,35 +77,40 @@ const DashboardLayout = () => {
                         </li>
 
                         {/* riders links */}
-                        <li>
-                            <NavLink to='/dashboard/active-riders' className="flex items-center gap-2">
-                                <FaMotorcycle className="text-lg" /> Active Riders
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to='/dashboard/pending-riders' className="flex items-center gap-2">
-                                <MdPending className="text-lg" /> Pending Riders
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to='/dashboard/rejected-riders' className="flex items-center gap-2">
-                                <MdOutlineCancel className="text-lg" /> Rejected Riders
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink to='/dashboard/deactivated-riders' className="flex items-center gap-2">
-                                <MdBlock className="text-lg" /> Deactivated Riders
-                            </NavLink>
-                        </li>
+                        {
+                            !isLoading && role === "admin" &&
+                            <>
+                                <li>
+                                    <NavLink to='/dashboard/active-riders' className="flex items-center gap-2">
+                                        <FaMotorcycle className="text-lg" /> Active Riders
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink to='/dashboard/pending-riders' className="flex items-center gap-2">
+                                        <MdPending className="text-lg" /> Pending Riders
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink to='/dashboard/rejected-riders' className="flex items-center gap-2">
+                                        <MdOutlineCancel className="text-lg" /> Rejected Riders
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink to='/dashboard/deactivated-riders' className="flex items-center gap-2">
+                                        <MdBlock className="text-lg" /> Deactivated Riders
+                                    </NavLink>
+                                </li>
 
-                        {/* Link to make ADMIN */}
-                        <li>
-                            <NavLink
-                                to="/dashboard/manage-admin" className="flex items-center gap-2">
-                                <FaUserShield className="text-lg" />
-                                Manage Admin
-                            </NavLink>
-                        </li>
+                                {/* Link to make ADMIN */}
+                                <li>
+                                    <NavLink
+                                        to="/dashboard/manage-admin" className="flex items-center gap-2">
+                                        <FaUserShield className="text-lg" />
+                                        Manage Admin
+                                    </NavLink>
+                                </li>
+                            </>
+                        }
                     </ul>
                 </div>
             </div>
