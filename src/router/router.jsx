@@ -20,6 +20,7 @@ import PendingRiders from "../pages/Dashboard/PendingRiders/PendingRiders";
 import ActiveRiders from "../pages/Dashboard/ActiveRiders/ActiveRiders";
 import DeactivatedRiders from "../pages/Dashboard/DeactivatedRiders/DeactivatedRiders";
 import RejectedRiders from "../pages/Dashboard/RejectedRiders/RejectedRiders";
+import ManageAdmin from "../pages/Dashboard/ManageAdmin/ManageAdmin";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -102,6 +103,10 @@ export const router = createBrowserRouter([
             {
                 path: 'deactivated-riders',
                 Component: DeactivatedRiders
+            },
+            {
+                path: 'manage-admin',
+                Component: ManageAdmin
             }
         ]
     }

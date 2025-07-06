@@ -10,13 +10,14 @@ const Login = () => {
     const { userLogin } = use(AuthContext);
     const location = useLocation();
     const navigate = useNavigate();
-    const from = location?.state || '/';
+    const from = location.state?.from || '/';
+    console.log(location)
 
     const onSubmit = data => {
         userLogin(data.email, data.password)
             .then(res => {
                 console.log(res.user);
-                navigate(from);
+                navigate(from, { replace: true });
             })
             .catch(err => console.log(err))
     }
@@ -73,7 +74,7 @@ const Login = () => {
                             </a>
                             <p>
                                 Don’t have an account?
-                                <Link to="/register" className="link link-primary pl-1">
+                                <Link state={{ from }} to="/register" className="link link-primary pl-1">
                                     Register
                                 </Link>
                             </p>

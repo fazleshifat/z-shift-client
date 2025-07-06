@@ -17,9 +17,12 @@ const PendingRiders = () => {
         },
     });
 
-    const handleApprove = async (id) => {
+    const handleApprove = async (id, email) => {
         try {
-            await axiosSecure.patch(`/riders/${id}/status`, { status: 'active' });
+            await axiosSecure.patch(`/riders/${id}/status`, {
+                status: 'active',
+                email: email
+            });
             Swal.fire('Approved!', 'Rider has been approved.', 'success');
             queryClient.invalidateQueries(['pendingRiders']);
         } catch (error) {
@@ -28,7 +31,7 @@ const PendingRiders = () => {
         }
     };
 
-    const handleReject = (id) => {
+    const handleReject = (id, email) => {
         Swal.fire({
             title: 'Are you sure?',
             text: "This will mark the rider as rejected, but data will remain in the system.",
@@ -40,7 +43,11 @@ const PendingRiders = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await axiosSecure.patch(`/riders/${id}/status`, { status: 'rejected' });
+                    await axiosSecure.patch(`/riders/${id}/status`,
+                        {
+                            status: 'rejected',
+                            email
+                        });
                     Swal.fire('Rejected!', 'Rider has been marked as rejected.', 'info');
                     queryClient.invalidateQueries(['pendingRiders']);
                 } catch (error) {
@@ -69,6 +76,7 @@ const PendingRiders = () => {
                                 <th>Region</th>
                                 <th>District</th>
                                 <th>Phone</th>
+                                <th>Email</th>
                                 <th>Bike</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -82,6 +90,7 @@ const PendingRiders = () => {
                                     <td>{rider.region}</td>
                                     <td>{rider.district}</td>
                                     <td>{rider.phone}</td>
+                                    <td>{rider.email}</td>
                                     <td>{rider.bikeBrand}</td>
                                     <td>
                                         <span className='bg-gray-600 px-4 py-2 rounded-3xl text-blue-300 uppercase'>
@@ -97,13 +106,13 @@ const PendingRiders = () => {
                                         </button>
                                         <button
                                             className="btn btn-xs btn-success"
-                                            onClick={() => handleApprove(rider._id)}
+                                            onClick={() => handleApprove(rider._id, rider.email)}
                                         >
                                             Approve
                                         </button>
                                         <button
                                             className="btn btn-xs btn-error"
-                                            onClick={() => handleReject(rider._id)}
+                                            onClick={() => handleReject(rider._id, rider.email)}
                                         >
                                             Reject
                                         </button>

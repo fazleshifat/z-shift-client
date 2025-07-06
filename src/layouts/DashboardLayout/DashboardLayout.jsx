@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../../shared/Logo/ProFastLogo';
 import { MdHome, MdOutlinePayment, MdTrackChanges, MdPerson, MdPending, MdOutlineCancel, MdBlock } from 'react-icons/md';
-import { FaBoxOpen, FaMotorcycle } from 'react-icons/fa';
+import { FaBoxOpen, FaMotorcycle, FaUserShield } from 'react-icons/fa';
 
 const DashboardLayout = () => {
     return (
@@ -91,6 +91,15 @@ const DashboardLayout = () => {
                         <li>
                             <NavLink to='/dashboard/deactivated-riders' className="flex items-center gap-2">
                                 <MdBlock className="text-lg" /> Deactivated Riders
+                            </NavLink>
+                        </li>
+
+                        {/* Link to make ADMIN */}
+                        <li>
+                            <NavLink
+                                to="/dashboard/manage-admin" className="flex items-center gap-2">
+                                <FaUserShield className="text-lg" />
+                                Manage Admin
                             </NavLink>
                         </li>
                     </ul>
