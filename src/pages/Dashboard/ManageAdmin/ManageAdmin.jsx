@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
-import { FaUserShield, FaUserAltSlash, FaSearch } from 'react-icons/fa';
+import { FaUserShield, FaUserAltSlash, FaSearch, FaUser } from 'react-icons/fa';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import Spinner from '../../../components/Spinner';
 
@@ -93,11 +93,19 @@ const ManageAdmin = () => {
                                     <td>{index + 1}</td>
                                     <td>{user.email}</td>
                                     <td>{new Date(user.created_at).toDateString() || 'N/A'}</td>
+                                    {/* <td>{user.role}</td> */}
                                     <td>
-                                        <span
-                                            className='uppercase bg-gray-600 py-1 px-3 text-white rounded-full'>
-                                            {user.role || 'user'}
-                                        </span>
+                                        {user.role === 'admin' ? (
+                                            <span className="flex items-center w-fit gap-2 bg-green-500 text-black px-3 py-1 rounded-xl uppercase text-sm">
+                                                <FaUserShield />
+                                                {user.role}
+                                            </span>
+                                        ) : (
+                                            <span className="flex items-center w-fit gap-2 bg-base-200 text-gray-400 px-3 py-1 rounded-full uppercase text-sm">
+                                                <FaUser />
+                                                {user.role || 'user'}
+                                            </span>
+                                        )}
                                     </td>
                                     <td>
                                         {user.role !== 'admin' ? (
