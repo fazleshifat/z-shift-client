@@ -9,7 +9,7 @@ const PendingRiders = () => {
     const queryClient = useQueryClient();
     const [selectedRider, setSelectedRider] = useState(null);
 
-    const { isLoading, data: riders = [] } = useQuery({
+    const { isLoading, error, data: riders = [] } = useQuery({
         queryKey: ['pendingRiders'],
         queryFn: async () => {
             const res = await axiosSecure.get('/riders/pending');
@@ -26,8 +26,9 @@ const PendingRiders = () => {
             Swal.fire('Approved!', 'Rider has been approved.', 'success');
             queryClient.invalidateQueries(['pendingRiders']);
         } catch (error) {
-            Swal.fire('Error!', 'Approval failed.', 'error');
-            console.error(error);
+            const msg = error.response?.data?.message || 'Approval failed.';
+            Swal.fire('Error!', msg, 'error');
+            console.error('Approval error:', error);
         }
     };
 
@@ -51,8 +52,9 @@ const PendingRiders = () => {
                     Swal.fire('Rejected!', 'Rider has been marked as rejected.', 'info');
                     queryClient.invalidateQueries(['pendingRiders']);
                 } catch (error) {
-                    Swal.fire('Error!', 'Rejection failed.', 'error');
-                    console.error(error);
+                    const msg = error.response?.data?.message || 'Approval failed.';
+                    Swal.fire('Error!', msg, 'error');
+                    console.error('Approval error:', error);
                 }
             }
         });

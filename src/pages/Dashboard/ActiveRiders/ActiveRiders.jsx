@@ -10,7 +10,7 @@ const ActiveRiders = () => {
     const [selectedRider, setSelectedRider] = useState(null);
 
     // Fetch active riders
-    const { isLoading, data: riders = [] } = useQuery({
+    const { isLoading, data: riders } = useQuery({
         queryKey: ['activeRiders'],
         queryFn: async () => {
             const res = await axiosSecure.get('/riders/active');
@@ -48,7 +48,7 @@ const ActiveRiders = () => {
         <div className="p-4">
             <h2 className="text-2xl font-bold mb-4">Active Riders</h2>
 
-            {riders.length === 0 ? (
+            {riders?.length === 0 ? (
                 <p className="text-center py-10 text-gray-500">No active riders.</p>
             ) : (
                 <div className="overflow-x-auto rounded-xl shadow">
@@ -66,7 +66,7 @@ const ActiveRiders = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {riders.map((rider, index) => (
+                            {riders?.map((rider, index) => (
                                 <tr key={rider._id}>
                                     <td>{index + 1}</td>
                                     <td>{rider.name}</td>
