@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../../shared/Logo/ProFastLogo';
 import { MdHome, MdOutlinePayment, MdTrackChanges, MdPerson, MdPending, MdOutlineCancel, MdBlock } from 'react-icons/md';
 import { FaBoxOpen, FaMotorcycle, FaUserShield } from 'react-icons/fa';
-import useUserRole from '../../hooks/useUserrRole';
+import useUserRole from '../../hooks/useUserRole';
 
 const DashboardLayout = () => {
 

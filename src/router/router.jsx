@@ -21,6 +21,8 @@ import ActiveRiders from "../pages/Dashboard/ActiveRiders/ActiveRiders";
 import DeactivatedRiders from "../pages/Dashboard/DeactivatedRiders/DeactivatedRiders";
 import RejectedRiders from "../pages/Dashboard/RejectedRiders/RejectedRiders";
 import ManageAdmin from "../pages/Dashboard/ManageAdmin/ManageAdmin";
+import Forbidden from "../pages/Forbidden/Forbidden";
+import AdminRoute from "../routes/AdminRoute";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -35,6 +37,11 @@ export const router = createBrowserRouter([
                 Component: Coverage,
                 loader: async () => await fetch('./data/serviceCenters.json')
             },
+            {
+                path: '/forbidden',
+                Component: Forbidden
+            }
+            ,
             {
                 path: '/sendParcel',
                 element: <PrivateRoute>
@@ -88,25 +95,35 @@ export const router = createBrowserRouter([
                 Component: TrackParcel
             },
             {
-                path: 'pending-riders',
-                Component: PendingRiders
+                path: 'active-riders',
+                element: <AdminRoute>
+                    <ActiveRiders></ActiveRiders>
+                </AdminRoute>
             },
             {
-                path: 'active-riders',
-                Component: ActiveRiders
+                path: 'pending-riders',
+                element: <AdminRoute>
+                    <PendingRiders></PendingRiders>
+                </AdminRoute>
             },
             {
                 path: 'rejected-riders',
-                Component: RejectedRiders
+                element: <AdminRoute>
+                    <RejectedRiders></RejectedRiders>
+                </AdminRoute>
             }
             ,
             {
                 path: 'deactivated-riders',
-                Component: DeactivatedRiders
+                element: <AdminRoute>
+                    <DeactivatedRiders></DeactivatedRiders>
+                </AdminRoute>
             },
             {
                 path: 'manage-admin',
-                Component: ManageAdmin
+                element: <AdminRoute>
+                    <ManageAdmin></ManageAdmin>
+                </AdminRoute>
             }
         ]
     }
