@@ -11,7 +11,7 @@ const Forbidden = () => {
                 </div>
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Access Forbidden</h1>
                 <p className="text-gray-600 mb-6">
-                    You don’t have permission to access this page. Please contact an ADMIN if you believe this is a mistake.
+                    You don’t have permission to access this page. Please contact an ADMIN if you believe this is a mistake then fixed it.
                 </p>
                 <Link to="/" className="btn btn-primary">
                     Back to Home
