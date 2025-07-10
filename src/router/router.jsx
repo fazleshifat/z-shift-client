@@ -23,6 +23,7 @@ import RejectedRiders from "../pages/Dashboard/RejectedRiders/RejectedRiders";
 import ManageAdmin from "../pages/Dashboard/ManageAdmin/ManageAdmin";
 import Forbidden from "../pages/Forbidden/Forbidden";
 import AdminRoute from "../routes/AdminRoute";
+import AssignRider from "../pages/Dashboard/AssignRider/AssignRider";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -94,6 +95,13 @@ export const router = createBrowserRouter([
                 path: 'track-parcel',
                 Component: TrackParcel
             },
+            {
+                path: 'assign-rider',
+                element: <AdminRoute>
+                    <AssignRider></AssignRider>
+                </AdminRoute>
+            }
+            ,
             {
                 path: 'active-riders',
                 element: <AdminRoute>

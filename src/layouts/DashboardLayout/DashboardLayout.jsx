@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../../shared/Logo/ProFastLogo';
 import { MdHome, MdOutlinePayment, MdTrackChanges, MdPerson, MdPending, MdOutlineCancel, MdBlock } from 'react-icons/md';
-import { FaBoxOpen, FaMotorcycle, FaUserShield } from 'react-icons/fa';
+import { FaBoxOpen, FaMotorcycle, FaUserShield, FaUserCheck } from 'react-icons/fa';
 import useUserRole from '../../hooks/useUserRole';
 
 const DashboardLayout = () => {
@@ -80,6 +80,11 @@ const DashboardLayout = () => {
                         {
                             !isLoading && role === "admin" &&
                             <>
+                                <li>
+                                    <NavLink to="/dashboard/assign-rider" className="flex items-center gap-2">
+                                        <FaUserCheck className="text-lg" /> Assign Rider
+                                    </NavLink>
+                                </li>
                                 <li>
                                     <NavLink to='/dashboard/active-riders' className="flex items-center gap-2">
                                         <FaMotorcycle className="text-lg" /> Active Riders
