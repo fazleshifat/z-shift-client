@@ -91,6 +91,11 @@ const DashboardLayout = () => {
                                     </NavLink>
                                 </li>
                                 <li>
+                                    <NavLink to='/dashboard/on-delivery-riders' className="flex items-center gap-2">
+                                        <FaMotorcycle className="text-lg" /> On Delivery Riders
+                                    </NavLink>
+                                </li>
+                                <li>
                                     <NavLink to='/dashboard/pending-riders' className="flex items-center gap-2">
                                         <MdPending className="text-lg" /> Pending Riders
                                     </NavLink>

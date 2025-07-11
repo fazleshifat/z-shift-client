@@ -1,16 +1,18 @@
 import React, { use } from 'react';
 import { useForm } from 'react-hook-form';
-import { useLoaderData } from 'react-router';
+import { useLoaderData, useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthContext } from '../../contexts/AuthContext';
 import useAxiosSecure from '../../hooks/useAxiosSecure';
+import { FaCreditCard, FaPen } from 'react-icons/fa';
 
 const MySwal = withReactContent(Swal);
 
 const SendParcel = () => {
+
     const serviceCenters = useLoaderData();
 
     // Create list of unique regions
@@ -30,6 +32,7 @@ const SendParcel = () => {
     // calling all custom hooks here
     const { user } = use(AuthContext);
     const axiosSecure = useAxiosSecure();
+    const navigate = useNavigate();
 
 
 
@@ -72,8 +75,8 @@ const SendParcel = () => {
                 </div>
             ),
             showCancelButton: true,
-            confirmButtonText: 'Confirm & Save',
-            cancelButtonText: 'Continue Editing',
+            confirmButtonText: '💳 Proceed to payment',
+            cancelButtonText: '✏️ Continue Editing',
             reverseButtons: true,
             preConfirm: () => {
                 handleConfirm(data, totalCost);
@@ -101,7 +104,6 @@ const SendParcel = () => {
             .then(res => {
                 console.log(res.data);
                 if (res.data.insertedId) {
-                    // redirect to the payment page
                     MySwal.fire({
                         icon: 'success',
                         title: 'Parcel Saved Successfully! ✅',
@@ -109,6 +111,7 @@ const SendParcel = () => {
                                <p><strong>Delivery Cost:</strong> ৳${cost}</p>
                                <p><strong>Send as:</strong> ${user.displayName}</p>`,
                     });
+                    navigate('/dashboard/myParcels');
                 }
             })
 
@@ -178,7 +181,7 @@ const SendParcel = () => {
                     <div>
                         <h2 className="text-lg font-semibold mb-4">Sender Info</h2>
                         <div className="grid grid-cols-1 gap-4">
-                            <input className="input input-bordered w-full" placeholder="Sender Name" {...register('senderName', { required: true })} />
+                            <input className="input input-bordered w-full cursor-not-allowed" readOnly defaultValue={user.displayName} placeholder="Sender Name" {...register('senderName', { required: true })} />
                             {errors.senderName && <span className="text-red-500">Sender name is required</span>}
                             <input className="input input-bordered w-full" placeholder="Sender Contact" {...register('senderContact', { required: true })} />
                             {errors.senderContact && <span className="text-red-500">Contact is required</span>}

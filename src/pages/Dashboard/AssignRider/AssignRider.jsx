@@ -16,9 +16,10 @@ const AssignRider = () => {
 
 
     const assignRiderMutation = useMutation({
-        mutationFn: async ({ parcelId, riderId }) => {
+        mutationFn: async ({ parcelId, riderId, riderName }) => {
             const res = await axiosSecure.patch(`/parcels/${parcelId}/assign`, {
                 riderId,
+                riderName
             });
             return res.data;
         },
@@ -93,12 +94,15 @@ const AssignRider = () => {
                             <tr>
                                 <th>#</th>
                                 <th>Tracking ID</th>
-                                <th>Receiver Name</th>
-                                <th>Phone</th>
-                                <th>District</th>
+                                <th>Sender</th>
+                                <th>Sender Contact</th>
+                                <th>Sender Region</th>
+                                <th>Sender Center</th>
+                                <th>Receiver</th>
+                                <th>Receiver Phone</th>
                                 <th>Created At</th>
-                                <th>Parcel Status</th>
-                                <th>Delivery Status</th>
+                                <th>Payment</th>
+                                <th>Delivery</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -106,10 +110,13 @@ const AssignRider = () => {
                             {sortedParcels.map((parcel, index) => (
                                 <tr key={parcel._id}>
                                     <td>{index + 1}</td>
-                                    <td>{parcel.tracking_id}</td>
-                                    <td>{parcel.receiver_name}</td>
-                                    <td>{parcel.receiver_phone}</td>
-                                    <td>{parcel.district}</td>
+                                    <td>{parcel.trackingId}</td>
+                                    <td>{parcel.senderName}</td>
+                                    <td>{parcel.senderContact}</td>
+                                    <td>{parcel.senderRegion}</td>
+                                    <td>{parcel.senderCenter}</td>
+                                    <td>{parcel.receiverName}</td>
+                                    <td>{parcel.receiverContact}</td>
                                     <td>{parcel.creation_date ? format(new Date(parcel.creation_date), 'PPP') : 'N/A'}</td>
                                     <td>
                                         <span className="badge badge-success">{parcel.payment_status}</span>
@@ -129,37 +136,63 @@ const AssignRider = () => {
                             ))}
                         </tbody>
                     </table>
+
                 </div>
             )}
 
             {/* modal to open */}
             <dialog id="assignModal" className="modal">
-                <div className="modal-box w-11/12 max-w-2xl">
-                    <h3 className="font-bold text-lg">Available Riders</h3>
+                <div className="modal-box w-11/12 max-w-4xl">
+                    <h3 className="font-bold text-lg mb-4">Available Riders</h3>
 
                     {loadingRiders ? (
                         <p className="text-gray-500">Loading...</p>
                     ) : riders.length === 0 ? (
                         <p className="text-red-500">No riders found in this region.</p>
                     ) : (
-                        <ul className="space-y-2">
-                            {riders.map((rider) => (
-                                <li key={rider._id} className="p-3 border rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold">{rider.name}</p>
-                                        <p className="text-sm text-gray-400">{rider.email}</p>
-                                    </div>
-                                    <button
-                                        onClick={() =>
-                                            assignRiderMutation.mutate({
-                                                parcelId: selectedParcel._id,
-                                                riderId: rider._id,
-                                            })
-                                        }
-                                        className="btn btn-xs btn-primary">Assign</button>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="overflow-x-auto rounded-lg shadow">
+                            <table className="table table-zebra w-full text-sm">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>District</th>
+                                        <th>Bike</th>
+                                        <th>License</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {riders.map((rider, index) => (
+                                        <tr key={rider._id}>
+                                            <td>{index + 1}</td>
+                                            <td>{rider.name}</td>
+                                            <td>{rider.email}</td>
+                                            <td>{rider.phone}</td>
+                                            <td>{rider.district}</td>
+                                            <td>{rider.bikeBrand} - {rider.bikeRegNo}</td>
+                                            <td>{rider.licenseNo}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() =>
+                                                        assignRiderMutation.mutate({
+                                                            parcelId: selectedParcel._id,
+                                                            riderId: rider._id,
+                                                            riderName: rider.name
+                                                        })
+                                                    }
+                                                    className="btn btn-xs btn-primary"
+                                                >
+                                                    Assign
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
 
                     <div className="modal-action">
@@ -169,6 +202,7 @@ const AssignRider = () => {
                     </div>
                 </div>
             </dialog>
+
 
         </div>
     );
