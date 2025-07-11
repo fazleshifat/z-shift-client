@@ -16,10 +16,10 @@ const AssignRider = () => {
 
 
     const assignRiderMutation = useMutation({
-        mutationFn: async ({ parcelId, riderId, riderName }) => {
+        mutationFn: async ({ parcelId, riderId, riderEmail }) => {
             const res = await axiosSecure.patch(`/parcels/${parcelId}/assign`, {
                 riderId,
-                riderName
+                riderEmail
             });
             return res.data;
         },
@@ -96,13 +96,12 @@ const AssignRider = () => {
                                 <th>Tracking ID</th>
                                 <th>Sender</th>
                                 <th>Sender Contact</th>
-                                <th>Sender Region</th>
-                                <th>Sender Center</th>
+                                <th>Sender District</th>
                                 <th>Receiver</th>
                                 <th>Receiver Phone</th>
                                 <th>Created At</th>
                                 <th>Payment</th>
-                                <th>Delivery</th>
+                                <th>Parcel Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -113,7 +112,6 @@ const AssignRider = () => {
                                     <td>{parcel.trackingId}</td>
                                     <td>{parcel.senderName}</td>
                                     <td>{parcel.senderContact}</td>
-                                    <td>{parcel.senderRegion}</td>
                                     <td>{parcel.senderCenter}</td>
                                     <td>{parcel.receiverName}</td>
                                     <td>{parcel.receiverContact}</td>
@@ -180,7 +178,7 @@ const AssignRider = () => {
                                                         assignRiderMutation.mutate({
                                                             parcelId: selectedParcel._id,
                                                             riderId: rider._id,
-                                                            riderName: rider.name
+                                                            riderEmail: rider.email
                                                         })
                                                     }
                                                     className="btn btn-xs btn-primary"
