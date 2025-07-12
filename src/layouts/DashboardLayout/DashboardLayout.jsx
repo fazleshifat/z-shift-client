@@ -20,7 +20,8 @@ import {
     FaMotorcycle,
     FaUserShield,
     FaUserCheck,
-    FaCheckCircle
+    FaCheckCircle,
+    FaMoneyBillWave
 } from 'react-icons/fa';
 
 import useUserRole from '../../hooks/useUserRole';
@@ -114,6 +115,13 @@ const DashboardLayout = () => {
                                     <NavLink to="/dashboard/completed-deliveries" className="flex items-center gap-2">
                                         <FaCheckCircle className="text-lg text-green-500" />
                                         Completed Deliveries
+                                    </NavLink>
+                                </li>
+
+                                <li>
+                                    <NavLink to="/dashboard/my-earnings" className="flex items-center gap-2">
+                                        <FaMoneyBillWave className="text-lg text-emerald-500" />
+                                        My Earnings
                                     </NavLink>
                                 </li>
                             </>
