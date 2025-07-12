@@ -1,229 +1,190 @@
-import React, { use } from 'react';
-import { useForm } from 'react-hook-form';
-import { useLoaderData, useNavigate } from 'react-router';
+import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useLoaderData, useNavigate } from "react-router";
 import useAxiosSecure from '../../hooks/useAxiosSecure';
-import { FaCreditCard, FaPen } from 'react-icons/fa';
+import useTrackingLogger from '../../hooks/useTrackingLogger';
+import { use } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
 
-const MySwal = withReactContent(Swal);
+const generateTrackingID = () => {
+    const date = new Date();
+    const datePart = date.toISOString().split("T")[0].replace(/-/g, "");
+    const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+    return `PCL-${datePart}-${rand}`;
+};
 
 const SendParcel = () => {
-
-    const serviceCenters = useLoaderData();
-
-    // Create list of unique regions
-    const regions = [...new Set(serviceCenters.map(item => item.region))];
-
-    // Function to get districts for selected region
-    const getDistricts = (region) =>
-        [...new Set(serviceCenters.filter(item => item.region === region).map(item => item.district))];
-
     const {
         register,
         handleSubmit,
         watch,
         formState: { errors },
     } = useForm();
-
-    // calling all custom hooks here
     const { user } = use(AuthContext);
     const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
+    const { logTracking } = useTrackingLogger();
 
+    const serviceCenters = useLoaderData();
+    const uniqueRegions = [...new Set(serviceCenters.map(w => w.region))];
+    const getDistrictsByRegion = region => serviceCenters.filter(w => w.region === region).map(w => w.district);
 
-
-    const parcelType = watch('type');
-    const senderRegion = watch('senderRegion');
-    const receiverRegion = watch('receiverRegion');
-
-    const senderDistricts = senderRegion ? getDistricts(senderRegion) : [];
-    const receiverDistricts = receiverRegion ? getDistricts(receiverRegion) : [];
+    const parcelType = watch("type");
+    const senderRegion = watch("sender_region");
+    const receiverRegion = watch("receiver_region");
 
     const onSubmit = (data) => {
-        const baseCost = data.type === 'non-document' ? 200 : 100;
-        const weightCost = data.weight ? parseFloat(data.weight) * 10 : 0;
-        const isSameDistrict = data.senderCenter === data.receiverCenter;
-        const outsideCharge = isSameDistrict ? 0 : 50;
-        const totalCost = baseCost + weightCost + outsideCharge;
 
-        MySwal.fire({
-            title: 'Confirm Parcel Details',
-            html: (
-                <div className="text-left">
-                    <p><strong>Parcel Type:</strong> {data.type}</p>
-                    <p><strong>Title:</strong> {data.title}</p>
-                    {data.type === 'non-document' && (
-                        <p><strong>Weight:</strong> {data.weight} kg</p>
-                    )}
-                    <hr className="my-2" />
-                    <p><strong>Sender:</strong> {data.senderName}, {data.senderContact}</p>
-                    <p><strong>From:</strong> {data.senderRegion} - {data.senderCenter}</p>
-                    <p><strong>Receiver:</strong> {data.receiverName}, {data.receiverContact}</p>
-                    <p><strong>To:</strong> {data.receiverRegion} - {data.receiverCenter}</p>
-                    <hr className="my-2" />
-                    <p><strong>Cost Breakdown:</strong></p>
-                    <ul className="list-disc ml-4">
-                        <li>Base Cost: ৳{baseCost}</li>
-                        <li>Weight Cost: ৳{weightCost}</li>
-                        {!isSameDistrict && <li>Outside City Charge: ৳{outsideCharge}</li>}
-                        <li><strong>Total: ৳{totalCost}</strong></li>
-                    </ul>
-                </div>
-            ),
-            showCancelButton: true,
-            confirmButtonText: '💳 Proceed to payment',
-            cancelButtonText: '✏️ Continue Editing',
-            reverseButtons: true,
-            preConfirm: () => {
-                handleConfirm(data, totalCost);
+        if (data.type === "document") {
+            delete data.weight; // ✅ remove weight if not needed
+        }
+
+        const weight = parseFloat(data.weight);
+        const isSameDistrict = data.sender_center === data.receiver_center;
+
+        let baseCost = 0;
+        let extraCost = 0;
+        let breakdown = "";
+
+        if (data.type === "document") {
+            baseCost = isSameDistrict ? 60 : 80;
+            breakdown = `Document delivery ${isSameDistrict ? "within" : "outside"} the district.`;
+        } else {
+            if (weight <= 3) {
+                baseCost = isSameDistrict ? 110 : 150;
+                breakdown = `Non-document up to 3kg ${isSameDistrict ? "within" : "outside"} the district.`;
+            } else {
+                const extraKg = weight - 3;
+                const perKgCharge = extraKg * 40;
+                const districtExtra = isSameDistrict ? 0 : 40;
+                baseCost = isSameDistrict ? 110 : 150;
+                extraCost = perKgCharge + districtExtra;
+                breakdown = `Extra charge: ৳40 x ${extraKg.toFixed(1)}kg = ৳${perKgCharge}${districtExtra ? "+ ৳40 cross-district" : ""}`;
+            }
+        }
+
+        const totalCost = baseCost + extraCost;
+
+        Swal.fire({
+            title: "Confirm Parcel Details",
+            html: `
+                <p><strong>Type:</strong> ${data.type}</p>
+                <p><strong>Weight:</strong> ${weight}kg</p>
+                <p><strong>Cost:</strong> ৳${totalCost}</p>
+                <p>${breakdown}</p>
+            `,
+            icon: "info",
+            confirmButtonText: "💳 Proceed to Payment",
+            denyButtonText: "✏️ Continue Editing",
+            showDenyButton: true,
+            confirmButtonColor: "#16a34a",
+            denyButtonColor: "#d3d3d3",
+            customClass: {
+                popup: "rounded-xl shadow-md px-6 py-6",
             },
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const tracking_id = generateTrackingID();
+                const parcelData = {
+                    ...data,
+                    deliveryCost: totalCost,
+                    created_by: user.email,
+                    payment_status: 'unpaid',
+                    delivery_status: 'not_collected',
+                    creation_date: new Date().toISOString(),
+                    tracking_id,
+                };
+
+                const res = await axiosSecure.post('/parcels', parcelData);
+                if (res.data.insertedId) {
+                    await logTracking({
+                        tracking_id,
+                        status: "parcel_created",
+                        details: `Created by ${user.displayName}`,
+                        updated_by: user.email,
+                    });
+
+                    Swal.fire("Saved", "Parcel and tracking created", "success");
+                    navigate('/dashboard/myParcels');
+                }
+            }
         });
     };
 
-    const handleConfirm = (data, cost) => {
-
-        const trackingId = 'PARCEL-' + Date.now() + '-' + Math.floor(Math.random() * 1000); // Semi-unique ID
-
-        const parcelData = {
-            ...data,
-            deliveryCost: cost,
-            trackingId,
-            created_by: user.email,
-            payment_status: 'unpaid',
-            delivery_status: 'not_collected',
-            creation_date: new Date().toISOString(),
-        };
-        console.log('Saving to DB:', parcelData);
-
-        // adding data to DB from here
-        axiosSecure.post('/parcels', parcelData)
-            .then(res => {
-                console.log(res.data);
-                if (res.data.insertedId) {
-                    MySwal.fire({
-                        icon: 'success',
-                        title: 'Parcel Saved Successfully! ✅',
-                        html: `<p><strong>Tracking ID:</strong> ${trackingId}</p>
-                               <p><strong>Delivery Cost:</strong> ৳${cost}</p>
-                               <p><strong>Send as:</strong> ${user.displayName}</p>`,
-                    });
-                    navigate('/dashboard/myParcels');
-                }
-            })
-
-
-    };
-
     return (
-        <div className="max-w-6xl mx-auto p-4">
-            <h2 className="text-3xl font-bold mb-2">Add Parcel</h2>
-            <p className="text-gray-500 mb-6">
-                As the system is based on Door to Door delivery, Parcel needs both pickup and delivery location.
-            </p>
-
+        <div className="p-6 max-w-5xl mx-auto">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold">Send a Parcel</h2>
+                    <p className="text-gray-500">Fill in the details below</p>
+                </div>
+
                 {/* Parcel Info */}
-                <div className="border border-gray-300 p-4 rounded-xl">
-                    <h2 className="text-lg font-semibold mb-4">Parcel Info</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="form-control">
-                            <label className="label">Parcel Type</label>
-                            <div className="flex gap-6">
-                                <label className="label cursor-pointer gap-2">
-                                    <input
-                                        type="radio"
-                                        value="document"
-                                        {...register("type", { required: true })}
-                                        className="radio checked:bg-blue-500"
-                                    />
-                                    <span className="label-text">Document</span>
-                                </label>
-                                <label className="label cursor-pointer gap-2">
-                                    <input
-                                        type="radio"
-                                        value="non-document"
-                                        {...register("type", { required: true })}
-                                        className="radio checked:bg-blue-500"
-                                    />
-                                    <span className="label-text">Non-Document</span>
-                                </label>
-                            </div>
-                            {errors.type && <span className="text-red-500">Type is required</span>}
-                        </div>
+                <div className="border p-4 rounded-xl shadow space-y-4">
+                    <h3 className="text-xl font-semibold">Parcel Info</h3>
+                    <input {...register("title", { required: true })} className="input input-bordered w-full" placeholder="Parcel Title" />
+                    {errors.title && <p className="text-red-500">Parcel title required</p>}
 
-                        <div className="form-control">
-                            <label className="label">Title</label>
-                            <input className="input input-bordered w-full" {...register('title', { required: true })} />
-                            {errors.title && <span className="text-red-500">Title is required</span>}
-                        </div>
+                    <div className="flex gap-4">
+                        <label className="flex items-center gap-2">
+                            <input type="radio" value="document" {...register("type", { required: true })} className="radio" /> Document
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="radio" value="non-document" {...register("type", { required: true })} className="radio" /> Non-Document
+                        </label>
+                    </div>
 
-                        {parcelType === 'non-document' && (
-                            <div className="form-control">
-                                <label className="label">Weight (kg)</label>
-                                <input
-                                    type="number"
-                                    step="0.1"
-                                    className="input input-bordered w-full"
-                                    {...register('weight')}
-                                />
-                            </div>
-                        )}
+                    <input
+                        type="number"
+                        step="0.1"
+                        {...register("weight")}
+                        disabled={parcelType !== "non-document"}
+                        className="input input-bordered w-full"
+                        placeholder="Weight (kg)"
+                    />
+                </div>
+
+                {/* Sender/Receiver Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Sender */}
+                    <div className="border p-4 rounded-xl shadow space-y-3">
+                        <h3 className="text-lg font-semibold">Sender Info</h3>
+                        <input {...register("sender_name", { required: true })} defaultValue={user.displayName} readOnly className="input input-bordered w-full cursor-not-allowed" placeholder="Sender Name" />
+                        <input {...register("sender_contact", { required: true })} className="input input-bordered w-full" placeholder="Contact" />
+                        <select {...register("sender_region", { required: true })} className="select select-bordered w-full">
+                            <option value="">Select Region</option>
+                            {uniqueRegions.map(region => <option key={region} value={region}>{region}</option>)}
+                        </select>
+                        <select {...register("sender_center", { required: true })} className="select select-bordered w-full">
+                            <option value="">Select District</option>
+                            {getDistrictsByRegion(senderRegion).map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                        <input {...register("sender_address", { required: true })} className="input input-bordered w-full" placeholder="Address" />
+                        <textarea {...register("pickup_instruction", { required: true })} className="textarea textarea-bordered w-full" placeholder="Pickup Instruction" />
+                    </div>
+
+                    {/* Receiver */}
+                    <div className="border p-4 rounded-xl shadow space-y-3">
+                        <h3 className="text-lg font-semibold">Receiver Info</h3>
+                        <input {...register("receiver_name", { required: true })} className="input input-bordered w-full" placeholder="Receiver Name" />
+                        <input {...register("receiver_contact", { required: true })} className="input input-bordered w-full" placeholder="Contact" />
+                        <select {...register("receiver_region", { required: true })} className="select select-bordered w-full">
+                            <option value="">Select Region</option>
+                            {uniqueRegions.map(region => <option key={region} value={region}>{region}</option>)}
+                        </select>
+                        <select {...register("receiver_center", { required: true })} className="select select-bordered w-full">
+                            <option value="">Select District</option>
+                            {getDistrictsByRegion(receiverRegion).map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                        <input {...register("receiver_address", { required: true })} className="input input-bordered w-full" placeholder="Address" />
+                        <textarea {...register("delivery_instruction", { required: true })} className="textarea textarea-bordered w-full" placeholder="Delivery Instruction" />
                     </div>
                 </div>
 
-                {/* Sender & Receiver Combined */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border border-gray-300 p-4 rounded-xl">
-                    {/* Sender Info */}
-                    <div>
-                        <h2 className="text-lg font-semibold mb-4">Sender Info</h2>
-                        <div className="grid grid-cols-1 gap-4">
-                            <input className="input input-bordered w-full cursor-not-allowed" readOnly defaultValue={user.displayName} placeholder="Sender Name" {...register('senderName', { required: true })} />
-                            {errors.senderName && <span className="text-red-500">Sender name is required</span>}
-                            <input className="input input-bordered w-full" placeholder="Sender Contact" {...register('senderContact', { required: true })} />
-                            {errors.senderContact && <span className="text-red-500">Contact is required</span>}
-                            <select className="select select-bordered w-full" {...register('senderRegion', { required: true })}>
-                                <option value="">Select Region</option>
-                                {regions.map(region => <option key={region} value={region}>{region}</option>)}
-                            </select>
-                            <select className="select select-bordered w-full" {...register('senderCenter', { required: true })}>
-                                <option value="">Select Service Center</option>
-                                {senderDistricts.map(d => <option key={d} value={d}>{d}</option>)}
-                            </select>
-                            <textarea className="textarea textarea-bordered w-full" placeholder="Sender Address" {...register('senderAddress', { required: true })} />
-                            <textarea className="textarea textarea-bordered w-full" placeholder="Pickup Instruction" {...register('pickupInstruction', { required: true })} />
-                        </div>
-                    </div>
-
-                    {/* Receiver Info */}
-                    <div>
-                        <h2 className="text-lg font-semibold mb-4">Receiver Info</h2>
-                        <div className="grid grid-cols-1 gap-4">
-                            <input className="input input-bordered w-full" placeholder="Receiver Name" {...register('receiverName', { required: true })} />
-                            {errors.receiverName && <span className="text-red-500">Receiver name is required</span>}
-                            <input className="input input-bordered w-full" placeholder="Receiver Contact" {...register('receiverContact', { required: true })} />
-                            {errors.receiverContact && <span className="text-red-500">Contact is required</span>}
-                            <select className="select select-bordered w-full" {...register('receiverRegion', { required: true })}>
-                                <option value="">Select Region</option>
-                                {regions.map(region => <option key={region} value={region}>{region}</option>)}
-                            </select>
-                            <select className="select select-bordered w-full" {...register('receiverCenter', { required: true })}>
-                                <option value="">Select Service Center</option>
-                                {receiverDistricts.map(d => <option key={d} value={d}>{d}</option>)}
-                            </select>
-                            <textarea className="textarea textarea-bordered w-full" placeholder="Receiver Address" {...register('receiverAddress', { required: true })} />
-                            <textarea className="textarea textarea-bordered w-full" placeholder="Delivery Instruction" {...register('deliveryInstruction', { required: true })} />
-                        </div>
-                    </div>
+                <div className="text-center">
+                    <button className="btn btn-primary">Submit Parcel</button>
                 </div>
-
-                <button type="submit" className="btn btn-primary w-full">Submit Parcel</button>
             </form>
-
-            <ToastContainer />
         </div>
     );
 };

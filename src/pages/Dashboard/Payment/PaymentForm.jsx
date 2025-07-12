@@ -6,6 +6,7 @@ import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import Spinner from '../../../components/Spinner';
 import { AuthContext } from '../../../contexts/AuthContext';
 import Swal from 'sweetalert2';
+import useTrackingLogger from '../../../hooks/useTrackingLogger';
 
 const PaymentForm = () => {
 
@@ -13,6 +14,7 @@ const PaymentForm = () => {
     const elements = useElements();
     const { parcelId } = useParams();
     const axiosSecure = useAxiosSecure();
+    const { logTracking } = useTrackingLogger();
     const { user } = use(AuthContext);
     const navigate = useNavigate();
 
@@ -106,9 +108,17 @@ const PaymentForm = () => {
                         html: `Transaction ID: <strong>${paymentData.transactionId}</strong>`,
                         confirmButtonText: 'Go to My Parcels',
                         confirmButtonColor: '#16a34a',
-                    }).then(() => {
-                        navigate('/dashboard/myParcels');
                     });
+
+
+                    await logTracking({
+                        tracking_id: parcelInfo.tracking_id,
+                        status: "payment_done",
+                        details: `Paid by ${user.displayName}`,
+                        updated_by: user.email,
+                    });
+
+                    navigate('/dashboard/myParcels');
                 }
             }
         }
