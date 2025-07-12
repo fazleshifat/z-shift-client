@@ -3,8 +3,22 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import Spinner from '../../../components/Spinner';
-import { format, isThisWeek, isToday, isThisMonth, isThisYear } from 'date-fns';
-import { FaChartBar } from 'react-icons/fa';
+import {
+    format,
+    isThisWeek,
+    isToday,
+    isThisMonth,
+    isThisYear
+} from 'date-fns';
+import {
+    FaChartBar,
+    FaMoneyBillWave,
+    FaWallet,
+    FaCalendarDay,
+    FaCalendarWeek,
+    FaCalendarAlt,
+    FaCalendar
+} from 'react-icons/fa';
 
 const MyEarnings = () => {
     const { user } = use(AuthContext);
@@ -29,7 +43,6 @@ const MyEarnings = () => {
     const totalCashedOut = deliveries.filter(p => p.cashed_out).reduce((sum, p) => sum + calculateEarning(p), 0);
     const totalPending = total - totalCashedOut;
 
-    // Filters for analysis
     const weekly = deliveries.filter(p => isThisWeek(new Date(p.delivered_at))).reduce((sum, p) => sum + calculateEarning(p), 0);
     const today = deliveries.filter(p => isToday(new Date(p.delivered_at))).reduce((sum, p) => sum + calculateEarning(p), 0);
     const monthly = deliveries.filter(p => isThisMonth(new Date(p.delivered_at))).reduce((sum, p) => sum + calculateEarning(p), 0);
@@ -39,42 +52,69 @@ const MyEarnings = () => {
     if (error) return <p className="text-red-500">Failed to load earnings data.</p>;
 
     return (
-        <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <FaChartBar className="text-blue-500" /> My Earnings Dashboard
-            </h2>
+        <div className="p-6 space-y-8">
+            <div className="flex items-center gap-3 text-3xl font-bold">
+                <FaChartBar className="text-blue-600" />
+                <span>My Earnings Dashboard</span>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white p-4 shadow rounded-xl border-l-4 border-green-500">
-                    <h4 className="text-gray-500">Total Earnings</h4>
-                    <p className="text-2xl font-bold text-green-600">৳{total.toFixed(2)}</p>
+            {/* Totals Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white border-l-4 border-green-500 rounded-xl shadow p-5">
+                    <div className="flex items-center gap-3 text-xl font-semibold text-green-600">
+                        <FaMoneyBillWave />
+                        <span>Total Earnings</span>
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-green-700">৳{total.toFixed(2)}</p>
                 </div>
-                <div className="bg-white p-4 shadow rounded-xl border-l-4 border-yellow-500">
-                    <h4 className="text-gray-500">Cashed Out</h4>
-                    <p className="text-2xl font-bold text-yellow-600">৳{totalCashedOut.toFixed(2)}</p>
+                <div className="bg-white border-l-4 border-yellow-500 rounded-xl shadow p-5">
+                    <div className="flex items-center gap-3 text-xl font-semibold text-yellow-600">
+                        <FaWallet />
+                        <span>Cashed Out</span>
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-yellow-700">৳{totalCashedOut.toFixed(2)}</p>
                 </div>
-                <div className="bg-white p-4 shadow rounded-xl border-l-4 border-rose-500">
-                    <h4 className="text-gray-500">Pending Cashout</h4>
-                    <p className="text-2xl font-bold text-rose-600">৳{totalPending.toFixed(2)}</p>
+                <div className="bg-white border-l-4 border-rose-500 rounded-xl shadow p-5">
+                    <div className="flex items-center gap-3 text-xl font-semibold text-rose-600">
+                        <FaWallet />
+                        <span>Pending Cashout</span>
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-rose-700">৳{totalPending.toFixed(2)}</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-base-100 p-4 shadow rounded-xl">
-                    <h5 className="text-gray-500">Today</h5>
-                    <p className="text-xl font-semibold text-blue-600">৳{today.toFixed(2)}</p>
-                </div>
-                <div className="bg-base-100 p-4 shadow rounded-xl">
-                    <h5 className="text-gray-500">This Week</h5>
-                    <p className="text-xl font-semibold text-blue-600">৳{weekly.toFixed(2)}</p>
-                </div>
-                <div className="bg-base-100 p-4 shadow rounded-xl">
-                    <h5 className="text-gray-500">This Month</h5>
-                    <p className="text-xl font-semibold text-blue-600">৳{monthly.toFixed(2)}</p>
-                </div>
-                <div className="bg-base-100 p-4 shadow rounded-xl">
-                    <h5 className="text-gray-500">This Year</h5>
-                    <p className="text-xl font-semibold text-blue-600">৳{yearly.toFixed(2)}</p>
+            {/* Analysis Section */}
+            <div className="mt-4">
+                <h3 className="text-xl font-semibold mb-4 text-gray-200">Earning Breakdown</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                    <div className="bg-base-100 p-5 rounded-xl shadow border">
+                        <div className="flex items-center gap-2 text-blue-200">
+                            <FaCalendarDay />
+                            <span className="text-sm text-gray-200">Today</span>
+                        </div>
+                        <p className="mt-1 text-2xl font-semibold text-blue-300">৳{today.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-base-100 p-5 rounded-xl shadow border">
+                        <div className="flex items-center gap-2 text-blue-200">
+                            <FaCalendarWeek />
+                            <span className="text-sm text-gray-200">This Week</span>
+                        </div>
+                        <p className="mt-1 text-2xl font-semibold text-blue-300">৳{weekly.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-base-100 p-5 rounded-xl shadow border">
+                        <div className="flex items-center gap-2 text-blue-200">
+                            <FaCalendarAlt />
+                            <span className="text-sm text-gray-200">This Month</span>
+                        </div>
+                        <p className="mt-1 text-2xl font-semibold text-blue-300">৳{monthly.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-base-100 p-5 rounded-xl shadow border">
+                        <div className="flex items-center gap-2 text-blue-200">
+                            <FaCalendar />
+                            <span className="text-sm text-gray-200">This Year</span>
+                        </div>
+                        <p className="mt-1 text-2xl font-semibold text-blue-300">৳{yearly.toFixed(2)}</p>
+                    </div>
                 </div>
             </div>
         </div>
