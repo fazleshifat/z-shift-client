@@ -19,7 +19,8 @@ import {
     FaBoxOpen,
     FaMotorcycle,
     FaUserShield,
-    FaUserCheck
+    FaUserCheck,
+    FaCheckCircle
 } from 'react-icons/fa';
 
 import useUserRole from '../../hooks/useUserRole';
@@ -106,6 +107,13 @@ const DashboardLayout = () => {
                                     <NavLink to="/dashboard/pending-deliveries" className="flex items-center gap-2">
                                         <MdPendingActions className="text-lg text-yellow-500" />
                                         Pending Deliveries
+                                    </NavLink>
+                                </li>
+
+                                <li>
+                                    <NavLink to="/dashboard/completed-deliveries" className="flex items-center gap-2">
+                                        <FaCheckCircle className="text-lg text-green-500" />
+                                        Completed Deliveries
                                     </NavLink>
                                 </li>
                             </>
