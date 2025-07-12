@@ -1,14 +1,16 @@
 import React, { use } from 'react';
 import { AuthContext } from '../../../contexts/AuthContext';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Spinner from '../../../components/Spinner';
 import { format } from 'date-fns';
 import { FaMoneyCheckAlt } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const CompletedDeliveries = () => {
     const { user } = use(AuthContext);
     const axiosSecure = useAxiosSecure();
+    const queryClient = useQueryClient();
 
     const { data: parcels = [], isLoading, error } = useQuery({
         queryKey: ['completedDeliveries'],
@@ -18,6 +20,34 @@ const CompletedDeliveries = () => {
             return res.data;
         },
     });
+
+    const cashoutMutation = useMutation({
+        mutationFn: async (id) => {
+            const res = await axiosSecure.patch(`/rider/cashout/${id}`);
+            return res.data;
+        },
+        onSuccess: () => {
+            Swal.fire('Success', 'Cashout successful!', 'success');
+            queryClient.invalidateQueries(['completedDeliveries']);
+        },
+        onError: () => {
+            Swal.fire('Error', 'Failed to cash out', 'error');
+        }
+    });
+
+    const handleCashout = (id) => {
+        Swal.fire({
+            title: 'Cashout Confirmation',
+            text: 'Are you sure you want to cash out for this delivery?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Cashout'
+        }).then(result => {
+            if (result.isConfirmed) {
+                cashoutMutation.mutate(id);
+            }
+        });
+    };
 
     const calculateEarnings = (parcel) => {
         const cost = parcel.deliveryCost || 0;
@@ -53,6 +83,7 @@ const CompletedDeliveries = () => {
                                     <th>Picked At</th>
                                     <th>Delivered At</th>
                                     <th>Earnings</th>
+                                    <th>Cashout</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,21 +92,24 @@ const CompletedDeliveries = () => {
                                         <td>{index + 1}</td>
                                         <td>{parcel.trackingId}</td>
                                         <td>{parcel.title}</td>
-                                        <td>
-                                            {parcel.senderCenter}
-                                            <br />
-                                            <span className="text-xs text-gray-500">{parcel.senderCenter}</span>
-                                        </td>
-                                        <td>
-                                            {parcel.receiverCenter}
-                                            <br />
-                                            <span className="text-xs text-gray-500">{parcel.receiverCenter}</span>
-                                        </td>
+                                        <td>{parcel.senderCenter}</td>
+                                        <td>{parcel.receiverCenter}</td>
                                         <td>৳{parcel.deliveryCost}</td>
                                         <td>{parcel.picked_at ? format(new Date(parcel.picked_at), 'PPP p') : 'N/A'}</td>
                                         <td>{parcel.delivered_at ? format(new Date(parcel.delivered_at), 'PPP p') : 'N/A'}</td>
                                         <td className="text-green-600 font-semibold">
-                                            ৳{calculateEarnings(parcel).toFixed(2)}
+                                            <span className='bg-yellow-200 font-bold px-3 py-1 rounded-3xl'>
+                                                ৳{calculateEarnings(parcel).toFixed(2)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button
+                                                className="btn btn-xs btn-success text-white"
+                                                disabled={parcel.cashed_out}
+                                                onClick={() => handleCashout(parcel._id)}
+                                            >
+                                                {parcel.cashed_out ? 'Cashed Out' : 'Cashout'}
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
