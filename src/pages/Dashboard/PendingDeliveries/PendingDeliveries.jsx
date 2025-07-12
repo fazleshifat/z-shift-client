@@ -5,11 +5,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Spinner from '../../../components/Spinner';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
+import useTrackingLogger from '../../../hooks/useTrackingLogger';
 
 const PendingDeliveries = () => {
+
     const { user } = use(AuthContext);
     const axiosSecure = useAxiosSecure();
     const queryClient = useQueryClient();
+    const { logTracking } = useTrackingLogger();
 
     const { data: tasks = [], isLoading, error } = useQuery({
         queryKey: ['riderTasks'],
@@ -21,13 +24,27 @@ const PendingDeliveries = () => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: async ({ id, status }) => {
-            const res = await axiosSecure.patch(`/parcels/${id}/status`, { status });
+        mutationFn: async ({ parcel, status }) => {
+            const res = await axiosSecure.patch(`/parcels/${parcel._id}/status`, { status });
             return res.data;
         },
-        onSuccess: (_, { status }) => {
+        onSuccess: async (_, { parcel, status }) => {
             Swal.fire('Updated', `Parcel marked as ${status}`, 'success');
             queryClient.invalidateQueries(['riderTasks']);
+
+            // log tracking for Pick  up and Delivery Parcel
+            let trackDetails = `Picked up by ${user.displayName}`;
+
+            if (status === 'delivered') {
+                trackDetails = `Delivered by ${user.displayName}`;
+            }
+
+            await logTracking({
+                tracking_id: parcel.trackingId,
+                status: status,
+                details: trackDetails,
+                updated_by: user.email,
+            })
         },
         onError: () => {
             Swal.fire('Error', 'Failed to update parcel status.', 'error');
@@ -35,7 +52,7 @@ const PendingDeliveries = () => {
     });
 
     // Trigger function with Swal confirm before mutation
-    const handleStatusChange = async (id, status) => {
+    const handleStatusChange = async (parcel, status) => {
         const result = await Swal.fire({
             title: `Mark parcel as "${status.replace('_', ' ')}"?`,
             text: 'Please confirm this action.',
@@ -46,7 +63,7 @@ const PendingDeliveries = () => {
         });
 
         if (result.isConfirmed) {
-            updateStatusMutation.mutate({ id, status });
+            updateStatusMutation.mutate({ parcel, status });
         }
     };
 
@@ -100,7 +117,7 @@ const PendingDeliveries = () => {
                                         {parcel.delivery_status === 'rider_assigned' && (
                                             <button
                                                 className="btn btn-xs btn-warning"
-                                                onClick={() => handleStatusChange(parcel._id, 'on_transit')}
+                                                onClick={() => handleStatusChange(parcel, 'on_transit')}
                                             >
                                                 Mark as Picked Up
                                             </button>
@@ -108,7 +125,7 @@ const PendingDeliveries = () => {
                                         {parcel.delivery_status === 'on_transit' && (
                                             <button
                                                 className="btn btn-xs btn-success"
-                                                onClick={() => handleStatusChange(parcel._id, 'delivered')}
+                                                onClick={() => handleStatusChange(parcel, 'delivered')}
                                             >
                                                 Mark as Delivered
                                             </button>
