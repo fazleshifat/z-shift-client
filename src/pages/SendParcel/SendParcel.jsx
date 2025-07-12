@@ -30,8 +30,8 @@ const SendParcel = () => {
     const getDistrictsByRegion = region => serviceCenters.filter(w => w.region === region).map(w => w.district);
 
     const parcelType = watch("type");
-    const senderRegion = watch("sender_region");
-    const receiverRegion = watch("receiver_region");
+    const senderRegion = watch("senderRegion");
+    const receiverRegion = watch("receiverRegion");
 
     const onSubmit = (data) => {
 
@@ -40,7 +40,7 @@ const SendParcel = () => {
         }
 
         const weight = parseFloat(data.weight);
-        const isSameDistrict = data.sender_center === data.receiver_center;
+        const isSameDistrict = data.senderCenter === data.receiverCenter;
 
         let baseCost = 0;
         let extraCost = 0;
@@ -84,7 +84,7 @@ const SendParcel = () => {
             },
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const tracking_id = generateTrackingID();
+                const trackingId = generateTrackingID();
                 const parcelData = {
                     ...data,
                     deliveryCost: totalCost,
@@ -92,13 +92,13 @@ const SendParcel = () => {
                     payment_status: 'unpaid',
                     delivery_status: 'not_collected',
                     creation_date: new Date().toISOString(),
-                    tracking_id,
+                    trackingId,
                 };
 
                 const res = await axiosSecure.post('/parcels', parcelData);
                 if (res.data.insertedId) {
                     await logTracking({
-                        tracking_id,
+                        trackingId,
                         status: "parcel_created",
                         details: `Created by ${user.displayName}`,
                         updated_by: user.email,
@@ -149,35 +149,35 @@ const SendParcel = () => {
                     {/* Sender */}
                     <div className="border p-4 rounded-xl shadow space-y-3">
                         <h3 className="text-lg font-semibold">Sender Info</h3>
-                        <input {...register("sender_name", { required: true })} defaultValue={user.displayName} readOnly className="input input-bordered w-full cursor-not-allowed" placeholder="Sender Name" />
-                        <input {...register("sender_contact", { required: true })} className="input input-bordered w-full" placeholder="Contact" />
-                        <select {...register("sender_region", { required: true })} className="select select-bordered w-full">
+                        <input {...register("senderName", { required: true })} defaultValue={user.displayName} readOnly className="input input-bordered w-full cursor-not-allowed" placeholder="Sender Name" />
+                        <input {...register("senderContact", { required: true })} className="input input-bordered w-full" placeholder="Contact" />
+                        <select {...register("senderRegion", { required: true })} className="select select-bordered w-full">
                             <option value="">Select Region</option>
                             {uniqueRegions.map(region => <option key={region} value={region}>{region}</option>)}
                         </select>
-                        <select {...register("sender_center", { required: true })} className="select select-bordered w-full">
+                        <select {...register("senderCenter", { required: true })} className="select select-bordered w-full">
                             <option value="">Select District</option>
                             {getDistrictsByRegion(senderRegion).map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
-                        <input {...register("sender_address", { required: true })} className="input input-bordered w-full" placeholder="Address" />
-                        <textarea {...register("pickup_instruction", { required: true })} className="textarea textarea-bordered w-full" placeholder="Pickup Instruction" />
+                        <input {...register("senderAddress", { required: true })} className="input input-bordered w-full" placeholder="Address" />
+                        <textarea {...register("pickupInstruction", { required: true })} className="textarea textarea-bordered w-full" placeholder="Pickup Instruction" />
                     </div>
 
                     {/* Receiver */}
                     <div className="border p-4 rounded-xl shadow space-y-3">
                         <h3 className="text-lg font-semibold">Receiver Info</h3>
-                        <input {...register("receiver_name", { required: true })} className="input input-bordered w-full" placeholder="Receiver Name" />
-                        <input {...register("receiver_contact", { required: true })} className="input input-bordered w-full" placeholder="Contact" />
-                        <select {...register("receiver_region", { required: true })} className="select select-bordered w-full">
+                        <input {...register("receiverName", { required: true })} className="input input-bordered w-full" placeholder="Receiver Name" />
+                        <input {...register("receiverContact", { required: true })} className="input input-bordered w-full" placeholder="Contact" />
+                        <select {...register("receiverRegion", { required: true })} className="select select-bordered w-full">
                             <option value="">Select Region</option>
                             {uniqueRegions.map(region => <option key={region} value={region}>{region}</option>)}
                         </select>
-                        <select {...register("receiver_center", { required: true })} className="select select-bordered w-full">
+                        <select {...register("receiverCenter", { required: true })} className="select select-bordered w-full">
                             <option value="">Select District</option>
                             {getDistrictsByRegion(receiverRegion).map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
-                        <input {...register("receiver_address", { required: true })} className="input input-bordered w-full" placeholder="Address" />
-                        <textarea {...register("delivery_instruction", { required: true })} className="textarea textarea-bordered w-full" placeholder="Delivery Instruction" />
+                        <input {...register("receiverAddress", { required: true })} className="input input-bordered w-full" placeholder="Address" />
+                        <textarea {...register("deliveryInstruction", { required: true })} className="textarea textarea-bordered w-full" placeholder="Delivery Instruction" />
                     </div>
                 </div>
 
