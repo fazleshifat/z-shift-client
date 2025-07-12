@@ -80,8 +80,7 @@ const CompletedDeliveries = () => {
                                     <th>From</th>
                                     <th>To</th>
                                     <th>Delivery Cost</th>
-                                    <th>Picked At</th>
-                                    <th>Delivered At</th>
+                                    <th>Status</th>
                                     <th>Earnings</th>
                                     <th>Cashout</th>
                                 </tr>
@@ -95,8 +94,7 @@ const CompletedDeliveries = () => {
                                         <td>{parcel.senderCenter}</td>
                                         <td>{parcel.receiverCenter}</td>
                                         <td>৳{parcel.deliveryCost}</td>
-                                        <td>{parcel.picked_at ? format(new Date(parcel.picked_at), 'PPP p') : 'N/A'}</td>
-                                        <td>{parcel.delivered_at ? format(new Date(parcel.delivered_at), 'PPP p') : 'N/A'}</td>
+                                        <td>{parcel.delivery_status}</td>
                                         <td className="text-green-600 font-semibold">
                                             <span className='bg-yellow-200 font-bold px-3 py-1 rounded-3xl'>
                                                 ৳{calculateEarnings(parcel).toFixed(2)}

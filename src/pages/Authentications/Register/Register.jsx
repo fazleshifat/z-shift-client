@@ -11,65 +11,71 @@ const Register = () => {
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const { createUser, updateUserProfile } = use(AuthContext);
     const [profilePicture, setProfilePicture] = useState('');
+    const [imageUploading, setImageUploading] = useState(false); // waiting to upload the photo then update firebase user
+
     const axiosInstance = useAxios();
     const location = useLocation();
     const navigate = useNavigate();
     const from = location.state?.from || '/';
     console.log(location)
 
-    const onSubmit = data => {
-        console.log(data);
-        createUser(data.email, data.password)
-            .then(async (result) => {
-                console.log(result.user);
+    const onSubmit = async (data) => {
+        if (!profilePicture) {
+            return alert("Please upload a profile picture before registering.");
+        }
 
-                // update user info in Database
-                const userInfo = {
-                    email: data.email,
-                    role: 'user', // default role
-                    created_at: new Date().toISOString(),
-                    last_login: new Date().toISOString(),
-                }
+        try {
+            const result = await createUser(data.email, data.password);
+            console.log(result.user);
 
-                const userRes = await axiosInstance.post('/users', userInfo);
-                console.log(userRes.data);
+            // Save to DB
+            const userInfo = {
+                email: data.email,
+                role: 'user',
+                created_at: new Date().toISOString(),
+                last_login: new Date().toISOString(),
+            };
 
+            await axiosInstance.post('/users', userInfo);
 
+            // Set Firebase profile
+            const userProfile = {
+                displayName: data.name,
+                photoURL: profilePicture,
+            };
 
-                // update user profile in Firebase
-                const userProfile = {
-                    displayName: data.name,
-                    photoURL: profilePicture
-                }
-                // sending userProfile data to the firebase update auth
-                updateUserProfile(userProfile)
-                    .then(() => {
-                        console.log('profile name and picture updated')
-                        navigate(from, { replace: true });
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+            await updateUserProfile(userProfile);
 
-                // for navigating to homepage
-
-
-            })
-            .catch(err => console.log(err))
-
-    }
+            navigate(from, { replace: true });
+        } catch (err) {
+            console.error('Registration failed:', err);
+        }
+    };
 
 
     // function to turn Image file into url at imgBB hosting
     const handleImageUpload = async (e) => {
         const image = e.target.files[0];
+        if (!image) return;
+
+        setImageUploading(true);
 
         const formData = new FormData();
         formData.append('image', image);
 
-        const res = await axios.post(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_upload_key}`, formData);
-        setProfilePicture(res.data.data.url);
-    }
+        try {
+            const res = await axios.post(
+                `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_upload_key}`,
+                formData
+            );
+            setProfilePicture(res.data.data.url);
+        } catch (error) {
+            console.error('Image upload failed:', error);
+        } finally {
+            setImageUploading(false);
+        }
+    };
+
 
     return (
         <>
