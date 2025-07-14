@@ -3,8 +3,9 @@ import useUserRole from '../../../hooks/useUserRole';
 import Spinner from '../../../components/Spinner';
 import UserDashboard from './UserDashboard';
 import RiderDashboard from './RiderDashboard';
-import AdminDashboard from './AdminDashboard';
 import Forbidden from '../../Forbidden/Forbidden';
+import AdminDashboard from './AdminDashboard';
+import DeliveryStatusPieChart from './DeliveryStatusPieChart';
 
 const DashboardHome = () => {
 
@@ -22,7 +23,10 @@ const DashboardHome = () => {
         return <RiderDashboard></RiderDashboard>;
     }
     if (role === 'admin') {
-        return <AdminDashboard></AdminDashboard>;
+        return <>
+            <AdminDashboard></AdminDashboard>
+            <DeliveryStatusPieChart></DeliveryStatusPieChart>
+        </>;
     }
 
     else {
