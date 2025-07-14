@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa';
 import { MdPendingActions } from 'react-icons/md';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import Spinner from '../../../components/Spinner';
 
 const AdminDashboard = () => {
     const axiosSecure = useAxiosSecure();
@@ -45,7 +46,7 @@ const AdminDashboard = () => {
     });
 
     if (isLoading)
-        return <div className="text-center py-6 text-lg font-medium">Loading delivery status...</div>;
+        return <div className="text-center py-6 text-lg font-medium"><Spinner></Spinner></div>;
     if (isError)
         return <div className="text-center py-6 text-red-600 font-medium">Failed to load data.</div>;
 
